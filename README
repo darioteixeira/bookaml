@@ -1,0 +1,52 @@
+=========================================================================
+| README for Bookaml 1.0						|
+|									|
+| Dario Teixeira (dario.teixeira@yahoo.com)				|
+| October 2010								|
+=========================================================================
+
+1. Overview
+===========
+
+Bookaml is a library providing a basic API to gather information about a book
+given its ISBN, or to find any number of books matching given search criteria.
+It is closely tied to the Amazon Product Advertising API [1], which it uses
+internally for retrieving book information.
+
+Note that if you intend to use the library's facilities beyond basic validation
+of ISBN numbers, you will need an Amazon Web Services account and associated
+access keys.
+
+
+2. Dependencies
+===============
+
+Bookaml depends on ExtLib, Sexplib, Calendar, Cryptokit, Lwt, and Ocsigen [2,3,4,5,6,7].
+
+
+3. Building and installing
+==========================
+
+Typing 'make' suffices to build the Bookaml library.  After building,
+'make install' will perform a findlib installation.  To generate the
+ocamldoc API documentation, use 'make apidoc'.
+
+
+4. License
+==========
+
+Bookaml is distributed under the terms of the GNU GPL version 2.
+See LICENSE file for full license text.
+
+
+References
+==========
+
+[1] https://affiliate-program.amazon.com/gp/advertising/api/detail/main.html
+[2] http://code.google.com/p/ocaml-extlib/
+[3] http://www.ocaml.info/home/ocaml_sources.html
+[4] http://calendar.forge.ocamlcore.org/
+[5] http://forge.ocamlcore.org/projects/cryptokit/
+[6] http://www.ocsigen.org/lwt
+[7] http://www.ocsigen.org/
+

@@ -1,0 +1,31 @@
+name = "bookaml"
+version = "1.0"
+description = "The Bookaml library for retrieving book information"
+requires = "threads, extlib, sexplib, calendar, cryptokit, lwt, ocsigen"
+archive(byte) = "bookaml.cma"
+archive(native) = "bookaml.cmxa"
+archive(plugin,byte) = "bookaml.cma"
+archive(plugin,native) = "bookaml.cmxs"
+
+package "isbn"
+	(
+	name = "isbn"
+	version = "1.0"
+	requires = "extlib, sexplib"
+	archive(byte) = "isbn.cmo"
+	archive(native) = "isbn.cmx"
+	archive(plugin,byte) = "isbn.cmo"
+	archive(plugin,native) = "isbn.cmxs"
+	)
+
+package "bookaml_amazon"
+	(
+	name = "bookaml_amazon"
+	version = "1.0"
+	requires = "threads, extlib, sexplib, calendar, cryptokit, lwt, ocsigen, bookaml.isbn"
+	archive(byte) = "bookaml_amazon.cmo"
+	archive(native) = "bookaml_amazon.cmx"
+	archive(plugin,byte) = "bookaml_amazon.cmo"
+	archive(plugin,native) = "bookaml_amazon.cmxs"
+	)
+
