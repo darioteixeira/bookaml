@@ -57,8 +57,10 @@ type book_t =
 *)
 type locale_t =
 	| CA	(** Canada *)
+	| CN	(** China *)
 	| DE	(** Germany *)
 	| FR	(** France *)
+	| IT	(** Italy *)
 	| JP	(** Japan *)
 	| UK	(** United Kingdom *)
 	| US	(** United States *)
@@ -103,7 +105,7 @@ val find_some_books:
 	?page:int ->
 	?service:string ->
 	?version:string ->
-	?associate_tag:string ->
+	associate_tag:string ->
 	access_key:string ->
 	secret_key:string ->
 	locale:locale_t ->
@@ -120,7 +122,7 @@ val find_some_books:
 val find_all_books:
 	?service:string ->
 	?version:string ->
-	?associate_tag:string ->
+	associate_tag:string ->
 	access_key:string ->
 	secret_key:string ->
 	locale:locale_t ->
@@ -128,30 +130,30 @@ val find_all_books:
 	book_t list Lwt.t
 
 
-(**	Returns the book that matches the given ISBN.  It may raise an exception
-	if the book was not found or if an error occurred during the operation.
-*)
-val book_from_isbn_exn:
-	?service:string ->
-	?version:string ->
-	?associate_tag:string ->
-	access_key:string ->
-	secret_key:string ->
-	locale:locale_t ->
-	Isbn.t ->
-	book_t Lwt.t
-
-
-(**	Similar to {!book_from_isbn_exn}, but instead of raising an exception,
+(**	Returns the book that matches the given ISBN.  Note that it actually
 	returns [Some book] if the book was retrievable and [None] otherwise.
 *)
 val book_from_isbn:
 	?service:string ->
 	?version:string ->
-	?associate_tag:string ->
+	associate_tag:string ->
 	access_key:string ->
 	secret_key:string ->
 	locale:locale_t ->
 	Isbn.t ->
 	book_t option Lwt.t
+
+
+(**	Similar to {!book_from_isbn}, but raises an exception if the book
+	was not found or if an error occurred during the operation.
+*)
+val book_from_isbn_exn:
+	?service:string ->
+	?version:string ->
+	associate_tag:string ->
+	access_key:string ->
+	secret_key:string ->
+	locale:locale_t ->
+	Isbn.t ->
+	book_t Lwt.t
 

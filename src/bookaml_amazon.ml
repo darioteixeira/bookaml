@@ -44,7 +44,7 @@ type book_t =
 	}
 
 
-type locale_t = CA | DE | FR | JP | UK | US
+type locale_t = CA | CN | DE | FR | IT | JP | UK | US
 
 
 type criteria_t = (string * string) list
@@ -58,15 +58,18 @@ let (|>) x f = f x
 
 
 let endpoint locale =
-	let host_prefix = "ecs.amazonaws."
-	and host_domain = match locale with
-		| CA -> "ca"
-		| DE -> "de"
-		| FR -> "fr"
-		| JP -> "jp"
-		| UK -> "co.uk"
-		| US -> "com"
-	in (host_prefix ^ host_domain, ["onca"; "xml"])
+	let host_prefix1 = "ecs.amazonaws."
+	and host_prefix2 = "webservices.amazon." in
+	let host = match locale with
+		| CA -> host_prefix1 ^ "ca"
+		| CN -> host_prefix2 ^ "cn"
+		| DE -> host_prefix1 ^ "de"
+		| FR -> host_prefix1 ^ "fr"
+		| IT -> host_prefix2 ^ "it"
+		| JP -> host_prefix1 ^ "jp"
+		| UK -> host_prefix1 ^ "co.uk"
+		| US -> host_prefix1 ^ "com"
+	in (host, ["onca"; "xml"])
 
 
 let xfind_all forest tag =
@@ -173,10 +176,11 @@ let make_criteria ?title ?author ?publisher ?keywords () =
 		| xs -> xs
 
 
-let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "2009-03-31") ?associate_tag ~access_key ~secret_key ~locale criteria =
+let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "2011-08-01") ~associate_tag ~access_key ~secret_key ~locale criteria =
 	let (host, path) = endpoint locale
 	and pairs =
 		[
+		("AssociateTag", associate_tag);
 		("Service", service);
 		("Version", version);
 		("AWSAccessKeyId", access_key);
@@ -185,7 +189,7 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 		("ItemPage", string_of_int page);
 		("SearchIndex", "Books");
 		("ResponseGroup", "ItemAttributes,Images");
-		] @ criteria @ (match associate_tag with Some x -> [("AssociateTag", x)] | None -> []) in
+		] @ criteria in
 	make_request ~host ~path ~secret_key pairs >>= fun response ->
 	try
 		let xml = Simplexmlparser.xmlparser_string response in
@@ -212,8 +216,8 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 		exc -> Lwt.fail exc
 
 
-let find_all_books ?service ?version ?associate_tag ~access_key ~secret_key ~locale criteria =
-	let get_page i = find_some_books ~page:i ?service ?version ?associate_tag ~access_key ~secret_key ~locale criteria in
+let find_all_books ?service ?version ~associate_tag ~access_key ~secret_key ~locale criteria =
+	let get_page i = find_some_books ~page:i ?service ?version ~associate_tag ~access_key ~secret_key ~locale criteria in
 	get_page 1 >>= fun (total_results, total_pages, books) ->
 	if total_pages > 1
 	then
@@ -224,17 +228,15 @@ let find_all_books ?service ?version ?associate_tag ~access_key ~secret_key ~loc
 		Lwt.return books
 
 
-let book_from_isbn_exn ?service ?version ?associate_tag ~access_key ~secret_key ~locale isbn =
+let book_from_isbn ?service ?version ~associate_tag ~access_key ~secret_key ~locale isbn =
 	let criteria = make_criteria ~keywords:(Isbn.to_string isbn) () in
-	find_some_books ?service ?version ?associate_tag ~access_key ~secret_key ~locale criteria >>= function
-		| (_, _, hd :: _) -> Lwt.return hd
-		| (_, _, [])	  -> Lwt.fail No_match
+	find_some_books ?service ?version ~associate_tag ~access_key ~secret_key ~locale criteria >>= function
+		| (_, _, hd :: _) -> Lwt.return (Some hd)
+		| (_, _, [])	  -> Lwt.return None
 
 
-let book_from_isbn ?service ?version ?associate_tag ~access_key ~secret_key ~locale isbn =
-	try_lwt
-		book_from_isbn_exn ?service ?version ?associate_tag ~access_key ~secret_key ~locale isbn >>= fun book ->
-		Lwt.return (Some book)
-	with
-		_ -> Lwt.return None
+let book_from_isbn_exn ?service ?version ~associate_tag ~access_key ~secret_key ~locale isbn =
+	book_from_isbn ?service ?version ~associate_tag ~access_key ~secret_key ~locale isbn >>= function
+		| Some book -> Lwt.return book
+		| None	    -> Lwt.fail No_match
 
