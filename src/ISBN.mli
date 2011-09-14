@@ -26,7 +26,7 @@ exception Bad_ISBN_character of char
 
 (**	The type of valid ISBN numbers.
 *)
-type t with sexp
+type t
 
 
 (********************************************************************************)

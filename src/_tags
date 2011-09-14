@@ -1,5 +1,3 @@
-true: pkg_threads, pkg_extlib, pkg_extlib, pkg_calendar, pkg_cryptokit, pkg_lwt, pkg_ocsigen
-
-<ISBN.*>: pkg_sexplib.syntax, syntax_camlp4o
-<bookaml_amazon.*>: pkg_lwt.syntax, syntax_camlp4o
+true: use_thread, package(extlib), package(calendar), package(cryptokit), package(lwt), package(ocsigen.server), package(ocsigen.xhtml)
+<bookaml_amazon.*>: package(lwt.syntax), syntax(camlp4o)
 

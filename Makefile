@@ -5,7 +5,7 @@
 PKG_NAME=bookaml
 SRC_DIR=src
 LIB_DIR=src/_build
-OCAMLBUILD_OPTS=-no-links
+OCAMLBUILD_OPTS=-no-links -use-ocamlfind
 
 LIB_FILES=bookaml.cma bookaml.cmxa bookaml.cmxs bookaml.a
 COMPONENTS=ISBN bookaml_amazon

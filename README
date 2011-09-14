@@ -21,7 +21,7 @@ access keys.
 2. Dependencies
 ===============
 
-Bookaml depends on ExtLib, Sexplib, Calendar, Cryptokit, Lwt, and Ocsigen [2,3,4,5,6,7].
+Bookaml depends on ExtLib, Calendar, Cryptokit, Lwt, and Ocsigen [2,3,4,5,6].
 
 
 3. Building and installing
@@ -44,9 +44,8 @@ References
 
 [1] https://affiliate-program.amazon.com/gp/advertising/api/detail/main.html
 [2] http://code.google.com/p/ocaml-extlib/
-[3] http://www.ocaml.info/home/ocaml_sources.html
-[4] http://calendar.forge.ocamlcore.org/
-[5] http://forge.ocamlcore.org/projects/cryptokit/
-[6] http://www.ocsigen.org/lwt
-[7] http://www.ocsigen.org/
+[3] http://calendar.forge.ocamlcore.org/
+[4] http://forge.ocamlcore.org/projects/cryptokit/
+[5] http://www.ocsigen.org/lwt
+[6] http://www.ocsigen.org/
 
