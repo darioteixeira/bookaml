@@ -1,5 +1,5 @@
 (********************************************************************************)
-(*	Isbn.mli
+(*	ISBN.mli
 	Copyright (c) 2010 Dario Teixeira (dario.teixeira@yahoo.com)
 	This software is distributed under the terms of the GNU GPL version 2.
 	See LICENSE file for full license text.
@@ -10,6 +10,15 @@
 	correct, taking advantage of the check digit present in every ISBN.
 	It supports both 10 and 13-digit ISBNs.
 *)
+
+(********************************************************************************)
+(**	{1 Exceptions}								*)
+(********************************************************************************)
+
+exception Bad_ISBN_length of string
+exception Bad_ISBN_checksum of string
+exception Bad_ISBN_character of char
+
 
 (********************************************************************************)
 (**	{1 Type definitions}							*)

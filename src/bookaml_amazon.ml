@@ -18,7 +18,38 @@ open Simplexmlparser
 (********************************************************************************)
 
 exception No_response
-exception No_match
+exception No_match of ISBN.t
+
+
+(********************************************************************************)
+(**	{1 Inner modules}							*)
+(********************************************************************************)
+
+module Locale =
+struct
+	type t = [ `CA | `CN | `DE | `FR | `IT | `JP | `UK | `US ]
+
+	let of_string = function
+		| "CA" | "ca" -> `CA
+		| "CN" | "cn" -> `CN
+		| "DE" | "de" -> `DE
+		| "FR" | "fr" -> `FR
+		| "IT" | "it" -> `IT
+		| "JP" | "jp" -> `JP
+		| "UK" | "uk" -> `UK
+		| "US" | "us" -> `US
+		| x 	      -> invalid_arg ("Locale.of_string: " ^ x)
+
+	let to_string = function
+		| `CA -> "ca"
+		| `CN -> "cn"
+		| `DE -> "de"
+		| `FR -> "fr"
+		| `IT -> "it"
+		| `JP -> "jp"
+		| `UK -> "uk"
+		| `US -> "us"
+end
 
 
 (********************************************************************************)
@@ -39,12 +70,11 @@ type book_t =
 	title: string;
 	author: string;
 	publisher: string;
+	year: int;
+	isbn: ISBN.t;
 	page: XHTML.M.uri;
 	images: (string * image_t list) list;
 	}
-
-
-type locale_t = CA | CN | DE | FR | IT | JP | UK | US
 
 
 type criteria_t = (string * string) list
@@ -61,14 +91,14 @@ let endpoint locale =
 	let host_prefix1 = "ecs.amazonaws."
 	and host_prefix2 = "webservices.amazon." in
 	let host = match locale with
-		| CA -> host_prefix1 ^ "ca"
-		| CN -> host_prefix2 ^ "cn"
-		| DE -> host_prefix1 ^ "de"
-		| FR -> host_prefix1 ^ "fr"
-		| IT -> host_prefix2 ^ "it"
-		| JP -> host_prefix1 ^ "jp"
-		| UK -> host_prefix1 ^ "co.uk"
-		| US -> host_prefix1 ^ "com"
+		| `CA -> host_prefix1 ^ "ca"
+		| `CN -> host_prefix2 ^ "cn"
+		| `DE -> host_prefix1 ^ "de"
+		| `FR -> host_prefix1 ^ "fr"
+		| `IT -> host_prefix2 ^ "it"
+		| `JP -> host_prefix1 ^ "jp"
+		| `UK -> host_prefix1 ^ "co.uk"
+		| `US -> host_prefix1 ^ "com"
 	in (host, ["onca"; "xml"])
 
 
@@ -207,6 +237,8 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 				title = attributes <!> "Title";
 				author = attributes <!> "Author";
 				publisher = attributes <!> "Publisher";
+				year = attributes <!> "Year" |> int_of_string;
+				isbn = attributes <!> "ISBN" |> ISBN.of_string;
 				page = item <!> "DetailPageURL" |> XHTML.M.uri_of_string;
 				images = images;
 				}
@@ -229,7 +261,7 @@ let find_all_books ?service ?version ~associate_tag ~access_key ~secret_key ~loc
 
 
 let book_from_isbn ?service ?version ~associate_tag ~access_key ~secret_key ~locale isbn =
-	let criteria = make_criteria ~keywords:(Isbn.to_string isbn) () in
+	let criteria = make_criteria ~keywords:(ISBN.to_string isbn) () in
 	find_some_books ?service ?version ~associate_tag ~access_key ~secret_key ~locale criteria >>= function
 		| (_, _, hd :: _) -> Lwt.return (Some hd)
 		| (_, _, [])	  -> Lwt.return None
@@ -238,5 +270,5 @@ let book_from_isbn ?service ?version ~associate_tag ~access_key ~secret_key ~loc
 let book_from_isbn_exn ?service ?version ~associate_tag ~access_key ~secret_key ~locale isbn =
 	book_from_isbn ?service ?version ~associate_tag ~access_key ~secret_key ~locale isbn >>= function
 		| Some book -> Lwt.return book
-		| None	    -> Lwt.fail No_match
+		| None	    -> Lwt.fail (No_match isbn)
 

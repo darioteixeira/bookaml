@@ -18,7 +18,31 @@
 (********************************************************************************)
 
 exception No_response
-exception No_match
+exception No_match of ISBN.t
+
+
+(********************************************************************************)
+(**	{1 Inner modules}							*)
+(********************************************************************************)
+
+(**	Definition of the various supported Amazon locales.
+*)
+module Locale:
+sig
+	type t =
+		[ `CA	(** Canada *)
+		| `CN	(** China *)
+		| `DE	(** Germany *)
+		| `FR	(** France *)
+		| `IT	(** Italy *)
+		| `JP	(** Japan *)
+		| `UK	(** United Kingdom *)
+		| `US	(** United States *)
+		]
+
+	val of_string: string -> t
+	val to_string: t -> string
+end
 
 
 (********************************************************************************)
@@ -48,22 +72,11 @@ type book_t =
 	title: string;
 	author: string;
 	publisher: string;
+	year: int;
+	isbn: ISBN.t;
 	page: XHTML.M.uri;
 	images: (string * image_t list) list;
 	}
-
-
-(**	Definition of the various supported Amazon locales.
-*)
-type locale_t =
-	| CA	(** Canada *)
-	| CN	(** China *)
-	| DE	(** Germany *)
-	| FR	(** France *)
-	| IT	(** Italy *)
-	| JP	(** Japan *)
-	| UK	(** United Kingdom *)
-	| US	(** United States *)
 
 
 (**	Search criteria expected by functions {!find_some_books} and {!find_all_books}.
@@ -108,7 +121,7 @@ val find_some_books:
 	associate_tag:string ->
 	access_key:string ->
 	secret_key:string ->
-	locale:locale_t ->
+	locale:Locale.t ->
 	criteria_t ->
 	(int * int * book_t list) Lwt.t
 
@@ -125,7 +138,7 @@ val find_all_books:
 	associate_tag:string ->
 	access_key:string ->
 	secret_key:string ->
-	locale:locale_t ->
+	locale:Locale.t ->
 	criteria_t ->
 	book_t list Lwt.t
 
@@ -139,8 +152,8 @@ val book_from_isbn:
 	associate_tag:string ->
 	access_key:string ->
 	secret_key:string ->
-	locale:locale_t ->
-	Isbn.t ->
+	locale:Locale.t ->
+	ISBN.t ->
 	book_t option Lwt.t
 
 
@@ -153,7 +166,7 @@ val book_from_isbn_exn:
 	associate_tag:string ->
 	access_key:string ->
 	secret_key:string ->
-	locale:locale_t ->
-	Isbn.t ->
+	locale:Locale.t ->
+	ISBN.t ->
 	book_t Lwt.t
 

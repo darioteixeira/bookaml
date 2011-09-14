@@ -1,5 +1,5 @@
 (********************************************************************************)
-(*	Isbn.ml
+(*	ISBN.ml
 	Copyright (c) 2010 Dario Teixeira (dario.teixeira@yahoo.com)
 	This software is distributed under the terms of the GNU GPL version 2.
 	See LICENSE file for full license text.
@@ -8,6 +8,15 @@
 
 open ExtList
 open ExtString
+
+
+(********************************************************************************)
+(**	{1 Exceptions}								*)
+(********************************************************************************)
+
+exception Bad_ISBN_length of string
+exception Bad_ISBN_checksum of string
+exception Bad_ISBN_character of char
 
 
 (********************************************************************************)
@@ -21,16 +30,15 @@ type t = string with sexp
 (**	{1 Private functions and values}					*)
 (********************************************************************************)
 
-(**	Returns the integer value corresponding to a given
-	digit (as a character).  Note that the "digits"
-	'X' and 'x' represent number 10.
+(**	Returns the integer value corresponding to a given digit (as a character).
+	Note that the "digits" 'X' and 'x' represent number 10.
 *)
 let value =
 	let base = int_of_char '0' in
 	function
 		| '0' .. '9' as x -> (int_of_char x) - base
 		| 'X' | 'x'	  -> 10
-		| _		  -> invalid_arg "Isbn.value"
+		| x		  -> raise (Bad_ISBN_character x)
 
 
 (**	Checks whether a 10-digit ISBN is correct.  Note that
@@ -58,13 +66,13 @@ let of_string str =
 	let checker = match List.length digits with
 		| 10 -> check10
 		| 13 -> check13
-		| _  -> invalid_arg "Isbn.of_string: bad length" in
+		| _  -> raise (Bad_ISBN_length str) in
 	if checker digits
 	then String.implode digits
-	else invalid_arg "Isbn.of_string: checksum fail"
+	else raise (Bad_ISBN_checksum str)
 
 
-let to_string x = x
+external to_string: t -> string = "%identity"
 
 
 let is_valid str =
