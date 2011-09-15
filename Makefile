@@ -41,7 +41,7 @@ install: lib
 uninstall:
 	ocamlfind remove $(PKG_NAME)
 
-reinstall:
+reinstall: lib
 	ocamlfind remove $(PKG_NAME)
 	ocamlfind install $(PKG_NAME) META $(TARGETS)
 

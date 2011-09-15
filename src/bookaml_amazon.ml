@@ -41,14 +41,14 @@ struct
 		| x 	      -> invalid_arg ("Locale.of_string: " ^ x)
 
 	let to_string = function
-		| `CA -> "ca"
-		| `CN -> "cn"
-		| `DE -> "de"
-		| `FR -> "fr"
-		| `IT -> "it"
-		| `JP -> "jp"
-		| `UK -> "uk"
-		| `US -> "us"
+		| `CA -> "CA"
+		| `CN -> "CN"
+		| `DE -> "DE"
+		| `FR -> "FR"
+		| `IT -> "IT"
+		| `JP -> "JP"
+		| `UK -> "UK"
+		| `US -> "US"
 end
 
 
@@ -70,7 +70,7 @@ type book_t =
 	title: string;
 	author: string;
 	publisher: string;
-	year: int;
+	pubdate: string;
 	isbn: ISBN.t;
 	page: XHTML.M.uri;
 	images: (string * image_t list) list;
@@ -237,7 +237,7 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 				title = attributes <!> "Title";
 				author = attributes <!> "Author";
 				publisher = attributes <!> "Publisher";
-				year = attributes <!> "Year" |> int_of_string;
+				pubdate = attributes <!> "PublicationDate";
 				isbn = attributes <!> "ISBN" |> ISBN.of_string;
 				page = item <!> "DetailPageURL" |> XHTML.M.uri_of_string;
 				images = images;

@@ -72,7 +72,7 @@ type book_t =
 	title: string;
 	author: string;
 	publisher: string;
-	year: int;
+	pubdate: string;
 	isbn: ISBN.t;
 	page: XHTML.M.uri;
 	images: (string * image_t list) list;
