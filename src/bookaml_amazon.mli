@@ -33,6 +33,7 @@ sig
 		[ `CA	(** Canada *)
 		| `CN	(** China *)
 		| `DE	(** Germany *)
+		| `ES	(** Spain *)
 		| `FR	(** France *)
 		| `IT	(** Italy *)
 		| `JP	(** Japan *)

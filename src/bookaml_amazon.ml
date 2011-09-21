@@ -27,12 +27,13 @@ exception No_match of ISBN.t
 
 module Locale =
 struct
-	type t = [ `CA | `CN | `DE | `FR | `IT | `JP | `UK | `US ]
+	type t = [ `CA | `CN | `DE | `ES | `FR | `IT | `JP | `UK | `US ]
 
 	let of_string = function
 		| "CA" | "ca" -> `CA
 		| "CN" | "cn" -> `CN
 		| "DE" | "de" -> `DE
+		| "ES" | "es" -> `ES
 		| "FR" | "fr" -> `FR
 		| "IT" | "it" -> `IT
 		| "JP" | "jp" -> `JP
@@ -44,6 +45,7 @@ struct
 		| `CA -> "CA"
 		| `CN -> "CN"
 		| `DE -> "DE"
+		| `ES -> "ES"
 		| `FR -> "FR"
 		| `IT -> "IT"
 		| `JP -> "JP"
@@ -94,6 +96,7 @@ let endpoint locale =
 		| `CA -> host_prefix1 ^ "ca"
 		| `CN -> host_prefix2 ^ "cn"
 		| `DE -> host_prefix1 ^ "de"
+		| `ES -> host_prefix2 ^ "es"
 		| `FR -> host_prefix1 ^ "fr"
 		| `IT -> host_prefix2 ^ "it"
 		| `JP -> host_prefix1 ^ "jp"
