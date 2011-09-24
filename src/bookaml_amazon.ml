@@ -58,12 +58,28 @@ end
 (**	{1 Type definitions}							*)
 (********************************************************************************)
 
+type credential_t =
+	{
+	locale: Locale.t;
+	associate_tag: string;
+	access_key: string;
+	secret_key: string;
+	}
+
+
+type price_t =
+	{
+	amount: int;
+	currency_code: string;
+	formatted_price: string;
+	}
+
+
 type image_t =
 	{
 	url: XHTML.M.uri;
 	width: int;
 	height: int;
-	description: string;
 	}
 
 
@@ -75,7 +91,10 @@ type book_t =
 	pubdate: string;
 	isbn: ISBN.t;
 	page: XHTML.M.uri;
-	images: (string * image_t list) list;
+	price: price_t;
+	image_small: image_t;
+	image_medium: image_t;
+	image_large: image_t;
 	}
 
 
@@ -85,9 +104,6 @@ type criteria_t = (string * string) list
 (********************************************************************************)
 (**	{1 Private functions and values}					*)
 (********************************************************************************)
-
-let (|>) x f = f x
-
 
 let endpoint locale =
 	let host_prefix1 = "ecs.amazonaws."
@@ -114,12 +130,13 @@ let xfind_all forest tag =
 
 let xfind_one forest tag = match xfind_all forest tag with
 	| hd :: _ -> hd
-	| []	  -> raise Not_found
+	| []	  -> Ocsigen_messages.warning (Printf.sprintf "xfind_one tag=%s, #forest=%d" tag (List.length forest)); raise Not_found
 
 
-let xget = function
-	| [PCData x] -> x
-	| _          -> raise Not_found
+let rec xget = function
+	| (PCData x) :: [] -> x
+	| (PCData x) :: tl -> x ^ (xget tl)
+	| _		   -> raise Not_found
 
 
 let (|>) x f = f x
@@ -137,29 +154,6 @@ let (<!>) xml tag = xfind_one xml tag |> xget
 let (<?>) xml tag =
 	try Some (xfind_one xml tag)
 	with Not_found -> None
-
-
-let make_image description img =
-	{
-	url = img <!> "URL" |> XHTML.M.uri_of_string;
-	width = img <!> "Width" |> int_of_string;
-	height = img <!> "Height" |> int_of_string;
-	description = description;
-	}
-
-
-let parse_image = function
-	| Element (tag, _, children) when String.ends_with tag "Image" ->
-		Some (make_image (String.slice ~last:(-5) tag) children)
-	| _ ->
-		None
-
-
-let parse_image_set = function
-	| Element ("ImageSet", [("Category", category)], children) ->
-		Some (category, List.filter_map parse_image children)
-	| _ ->
-		None
 
 
 let make_request ~host ~path ~secret_key pairs =
@@ -199,6 +193,10 @@ let make_request ~host ~path ~secret_key pairs =
 (**	{1 Public functions and values}						*)
 (********************************************************************************)
 
+let make_credential ~locale ~associate_tag ~access_key ~secret_key =
+	{locale; associate_tag; access_key; secret_key}
+
+
 let make_criteria ?title ?author ?publisher ?keywords () =
 	let filter (k, v) = match v with
 		| Some data -> Some (k, data)
@@ -209,21 +207,21 @@ let make_criteria ?title ?author ?publisher ?keywords () =
 		| xs -> xs
 
 
-let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "2011-08-01") ~associate_tag ~access_key ~secret_key ~locale criteria =
-	let (host, path) = endpoint locale
+let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "2011-08-01") ~credential criteria =
+	let (host, path) = endpoint credential.locale
 	and pairs =
 		[
-		("AssociateTag", associate_tag);
+		("AssociateTag", credential.associate_tag);
 		("Service", service);
 		("Version", version);
-		("AWSAccessKeyId", access_key);
+		("AWSAccessKeyId", credential.access_key);
 		("Timestamp", Printer.Calendar.sprint "%FT%TZ" (Calendar.now ()));	(* Combined date and time in UTC, as per ISO-8601 *)
 		("Operation", "ItemSearch");
 		("ItemPage", string_of_int page);
 		("SearchIndex", "Books");
 		("ResponseGroup", "ItemAttributes,Images");
 		] @ criteria in
-	make_request ~host ~path ~secret_key pairs >>= fun response ->
+	make_request ~host ~path ~secret_key:credential.secret_key pairs >>= fun response ->
 	try
 		let xml = Simplexmlparser.xmlparser_string response in
 		let items_group = xml <|> "ItemSearchResponse" <|> "Items" in
@@ -231,19 +229,31 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 		and total_pages = items_group <!> "TotalPages" |> int_of_string
 		and items = items_group <*> "Item" in
 		let make_book item =
-			let images =
-				try item <|> "ImageSets" |> List.filter_map parse_image_set
-				with Not_found -> []
-			and attributes = item <|> "ItemAttributes" in
+			let make_price list_price =
+				{
+				amount = list_price <!> "Amount" |> int_of_string;
+				currency_code = list_price <!> "CurrencyCode";
+				formatted_price = list_price <!> "FormattedPrice";
+				}
+			and make_image img =
+				{
+				url = img <!> "URL" |> XHTML.M.uri_of_string;
+				width = img <!> "Width" |> int_of_string;
+				height = img <!> "Height" |> int_of_string;
+				}
+			and item_attributes = item <|> "ItemAttributes" in
 			try Some
 				{
-				title = attributes <!> "Title";
-				author = attributes <!> "Author";
-				publisher = attributes <!> "Publisher";
-				pubdate = attributes <!> "PublicationDate";
-				isbn = attributes <!> "ISBN" |> ISBN.of_string;
+				title = item_attributes <!> "Title";
+				author = item_attributes <!> "Author";
+				publisher = item_attributes <!> "Publisher";
+				pubdate = item_attributes <!> "PublicationDate";
+				isbn = item_attributes <!> "ISBN" |> ISBN.of_string;
 				page = item <!> "DetailPageURL" |> XHTML.M.uri_of_string;
-				images = images;
+				price = item_attributes <|> "ListPrice" |> make_price;
+				image_small = item <|> "SmallImage" |> make_image;
+				image_medium = item <|> "MediumImage" |> make_image;
+				image_large = item <|> "LargeImage" |> make_image;
 				}
 			with Not_found -> None
 		in Lwt.return (total_results, total_pages, List.filter_map make_book items)
@@ -251,8 +261,8 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 		exc -> Lwt.fail exc
 
 
-let find_all_books ?service ?version ~associate_tag ~access_key ~secret_key ~locale criteria =
-	let get_page i = find_some_books ~page:i ?service ?version ~associate_tag ~access_key ~secret_key ~locale criteria in
+let find_all_books ?service ?version ~credential criteria =
+	let get_page i = find_some_books ~page:i ?service ?version ~credential criteria in
 	get_page 1 >>= fun (total_results, total_pages, books) ->
 	if total_pages > 1
 	then
@@ -263,15 +273,15 @@ let find_all_books ?service ?version ~associate_tag ~access_key ~secret_key ~loc
 		Lwt.return books
 
 
-let book_from_isbn ?service ?version ~associate_tag ~access_key ~secret_key ~locale isbn =
+let book_from_isbn ?service ?version ~credential isbn =
 	let criteria = make_criteria ~keywords:(ISBN.to_string isbn) () in
-	find_some_books ?service ?version ~associate_tag ~access_key ~secret_key ~locale criteria >>= function
+	find_some_books ?service ?version ~credential criteria >>= function
 		| (_, _, hd :: _) -> Lwt.return (Some hd)
 		| (_, _, [])	  -> Lwt.return None
 
 
-let book_from_isbn_exn ?service ?version ~associate_tag ~access_key ~secret_key ~locale isbn =
-	book_from_isbn ?service ?version ~associate_tag ~access_key ~secret_key ~locale isbn >>= function
+let book_from_isbn_exn ?service ?version ~credential isbn =
+	book_from_isbn ?service ?version ~credential isbn >>= function
 		| Some book -> Lwt.return book
 		| None	    -> Lwt.fail (No_match isbn)
 

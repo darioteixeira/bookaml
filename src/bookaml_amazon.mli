@@ -8,8 +8,8 @@
 
 (**	This module provides facilities for finding information about books.
 	It works by invoking the Amazon Product Advertising API, and therefore
-	most of its functions require the access and secret keys available
-	to registered users of Amazon Web Services.
+	most of its functions require the associate tag, access key, and secret
+	key available to registered users of Amazon Web Services.
 *)
 
 
@@ -50,23 +50,38 @@ end
 (**	{1 Type definitions}							*)
 (********************************************************************************)
 
-(**	Information about a book image.  Note that the [description] field
-	corresponds to the textual description of the image's size, and may
-	contain values such as "large", "medium", "small", etc.
+(**	Credential for Amazon Web Services.
+*)
+type credential_t =
+	{
+	locale: Locale.t;
+	associate_tag: string;
+	access_key: string;
+	secret_key: string;
+	}
+
+
+(**	Information about a book's price.
+*)
+type price_t =
+	{
+	amount: int;
+	currency_code: string;
+	formatted_price: string;
+	}
+
+
+(**	Information about a book image.
 *)
 type image_t =
 	{
 	url: XHTML.M.uri;
 	width: int;
 	height: int;
-	description: string;
 	}
 
 
-(**	Information about a book.  Note that field [images] contains a list
-	of image sets, where each image set is a pair consisting of the set
-	name and a list of {!image_t} with the images belonging to that set.
-	The remaining fields should be self-explanatory.
+(**	Information about a book.
 *)
 type book_t =
 	{
@@ -76,7 +91,10 @@ type book_t =
 	pubdate: string;
 	isbn: ISBN.t;
 	page: XHTML.M.uri;
-	images: (string * image_t list) list;
+	price: price_t;
+	image_small: image_t;
+	image_medium: image_t;
+	image_large: image_t;
 	}
 
 
@@ -89,6 +107,17 @@ type criteria_t
 (********************************************************************************)
 (**	{1 Public functions and values}						*)
 (********************************************************************************)
+
+(**	Constructs the AWS credential that is required for functions {!find_some_books},
+	{!find_all_books}, {!book_from_isbn}, and {!book_from_isbn_exn}.
+*)
+val make_credential:
+	locale: Locale.t ->
+	associate_tag: string ->
+	access_key: string ->
+	secret_key: string ->
+	credential_t
+
 
 (**	Constructs the search criteria that may later be given to functions
 	{!find_some_books} or {!find_all_books}.  The search criteria may
@@ -119,10 +148,7 @@ val find_some_books:
 	?page:int ->
 	?service:string ->
 	?version:string ->
-	associate_tag:string ->
-	access_key:string ->
-	secret_key:string ->
-	locale:Locale.t ->
+	credential:credential_t ->
 	criteria_t ->
 	(int * int * book_t list) Lwt.t
 
@@ -136,10 +162,7 @@ val find_some_books:
 val find_all_books:
 	?service:string ->
 	?version:string ->
-	associate_tag:string ->
-	access_key:string ->
-	secret_key:string ->
-	locale:Locale.t ->
+	credential:credential_t ->
 	criteria_t ->
 	book_t list Lwt.t
 
@@ -150,10 +173,7 @@ val find_all_books:
 val book_from_isbn:
 	?service:string ->
 	?version:string ->
-	associate_tag:string ->
-	access_key:string ->
-	secret_key:string ->
-	locale:Locale.t ->
+	credential:credential_t ->
 	ISBN.t ->
 	book_t option Lwt.t
 
@@ -164,10 +184,7 @@ val book_from_isbn:
 val book_from_isbn_exn:
 	?service:string ->
 	?version:string ->
-	associate_tag:string ->
-	access_key:string ->
-	secret_key:string ->
-	locale:Locale.t ->
+	credential:credential_t ->
 	ISBN.t ->
 	book_t Lwt.t
 
