@@ -29,6 +29,8 @@ module Locale =
 struct
 	type t = [ `CA | `CN | `DE | `ES | `FR | `IT | `JP | `UK | `US ]
 
+	type pg_t = string
+
 	let of_string = function
 		| "CA" | "ca" -> `CA
 		| "CN" | "cn" -> `CN
@@ -51,6 +53,10 @@ struct
 		| `JP -> "JP"
 		| `UK -> "UK"
 		| `US -> "US"
+
+	let of_pg = of_string
+
+	let to_pg = to_string
 end
 
 
@@ -60,41 +66,41 @@ end
 
 type credential_t =
 	{
-	locale: Locale.t;
-	associate_tag: string;
-	access_key: string;
-	secret_key: string;
+	bk_locale: Locale.t;
+	bk_associate_tag: string;
+	bk_access_key: string;
+	bk_secret_key: string;
 	}
 
 
 type price_t =
 	{
-	amount: int;
-	currency_code: string;
-	formatted_price: string;
+	bk_amount: int;
+	bk_currency: string;
+	bk_formatted: string;
 	}
 
 
 type image_t =
 	{
-	url: XHTML.M.uri;
-	width: int;
-	height: int;
+	bk_url: XHTML.M.uri;
+	bk_width: int;
+	bk_height: int;
 	}
 
 
 type book_t =
 	{
-	title: string;
-	author: string;
-	publisher: string;
-	pubdate: string;
-	isbn: ISBN.t;
-	page: XHTML.M.uri;
-	price: price_t;
-	image_small: image_t;
-	image_medium: image_t;
-	image_large: image_t;
+	bk_isbn: ISBN.t;
+	bk_title: string;
+	bk_author: string;
+	bk_publisher: string;
+	bk_pubdate: string;
+	bk_page: XHTML.M.uri;
+	bk_price: price_t;
+	bk_image_small: image_t;
+	bk_image_medium: image_t;
+	bk_image_large: image_t;
 	}
 
 
@@ -194,7 +200,12 @@ let make_request ~host ~path ~secret_key pairs =
 (********************************************************************************)
 
 let make_credential ~locale ~associate_tag ~access_key ~secret_key =
-	{locale; associate_tag; access_key; secret_key}
+	{
+	bk_locale = locale;
+	bk_associate_tag = associate_tag;
+	bk_access_key = access_key;
+	bk_secret_key = secret_key;
+	}
 
 
 let make_criteria ?title ?author ?publisher ?keywords () =
@@ -208,20 +219,20 @@ let make_criteria ?title ?author ?publisher ?keywords () =
 
 
 let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "2011-08-01") ~credential criteria =
-	let (host, path) = endpoint credential.locale
+	let (host, path) = endpoint credential.bk_locale
 	and pairs =
 		[
-		("AssociateTag", credential.associate_tag);
+		("AssociateTag", credential.bk_associate_tag);
 		("Service", service);
 		("Version", version);
-		("AWSAccessKeyId", credential.access_key);
+		("AWSAccessKeyId", credential.bk_access_key);
 		("Timestamp", Printer.Calendar.sprint "%FT%TZ" (Calendar.now ()));	(* Combined date and time in UTC, as per ISO-8601 *)
 		("Operation", "ItemSearch");
 		("ItemPage", string_of_int page);
 		("SearchIndex", "Books");
 		("ResponseGroup", "ItemAttributes,Images");
 		] @ criteria in
-	make_request ~host ~path ~secret_key:credential.secret_key pairs >>= fun response ->
+	make_request ~host ~path ~secret_key:credential.bk_secret_key pairs >>= fun response ->
 	try
 		let xml = Simplexmlparser.xmlparser_string response in
 		let items_group = xml <|> "ItemSearchResponse" <|> "Items" in
@@ -231,29 +242,29 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 		let make_book item =
 			let make_price list_price =
 				{
-				amount = list_price <!> "Amount" |> int_of_string;
-				currency_code = list_price <!> "CurrencyCode";
-				formatted_price = list_price <!> "FormattedPrice";
+				bk_amount = list_price <!> "Amount" |> int_of_string;
+				bk_currency = list_price <!> "CurrencyCode";
+				bk_formatted = list_price <!> "FormattedPrice";
 				}
 			and make_image img =
 				{
-				url = img <!> "URL" |> XHTML.M.uri_of_string;
-				width = img <!> "Width" |> int_of_string;
-				height = img <!> "Height" |> int_of_string;
+				bk_url = img <!> "URL" |> XHTML.M.uri_of_string;
+				bk_width = img <!> "Width" |> int_of_string;
+				bk_height = img <!> "Height" |> int_of_string;
 				}
 			and item_attributes = item <|> "ItemAttributes" in
 			try Some
 				{
-				title = item_attributes <!> "Title";
-				author = item_attributes <!> "Author";
-				publisher = item_attributes <!> "Publisher";
-				pubdate = item_attributes <!> "PublicationDate";
-				isbn = item_attributes <!> "ISBN" |> ISBN.of_string;
-				page = item <!> "DetailPageURL" |> XHTML.M.uri_of_string;
-				price = item_attributes <|> "ListPrice" |> make_price;
-				image_small = item <|> "SmallImage" |> make_image;
-				image_medium = item <|> "MediumImage" |> make_image;
-				image_large = item <|> "LargeImage" |> make_image;
+				bk_isbn = item_attributes <!> "ISBN" |> ISBN.of_string;
+				bk_title = item_attributes <!> "Title";
+				bk_author = item_attributes <!> "Author";
+				bk_publisher = item_attributes <!> "Publisher";
+				bk_pubdate = item_attributes <!> "PublicationDate";
+				bk_page = item <!> "DetailPageURL" |> XHTML.M.uri_of_string;
+				bk_price = item_attributes <|> "ListPrice" |> make_price;
+				bk_image_small = item <|> "SmallImage" |> make_image;
+				bk_image_medium = item <|> "MediumImage" |> make_image;
+				bk_image_large = item <|> "LargeImage" |> make_image;
 				}
 			with Not_found -> None
 		in Lwt.return (total_results, total_pages, List.filter_map make_book items)

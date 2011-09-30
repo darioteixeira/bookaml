@@ -41,8 +41,13 @@ sig
 		| `US	(** United States *)
 		]
 
+	type pg_t = string
+
 	val of_string: string -> t
 	val to_string: t -> string
+
+	val of_pg: pg_t -> t
+	val to_pg: t -> pg_t
 end
 
 
@@ -54,10 +59,10 @@ end
 *)
 type credential_t =
 	{
-	locale: Locale.t;
-	associate_tag: string;
-	access_key: string;
-	secret_key: string;
+	bk_locale: Locale.t;
+	bk_associate_tag: string;
+	bk_access_key: string;
+	bk_secret_key: string;
 	}
 
 
@@ -65,9 +70,9 @@ type credential_t =
 *)
 type price_t =
 	{
-	amount: int;
-	currency_code: string;
-	formatted_price: string;
+	bk_amount: int;
+	bk_currency: string;
+	bk_formatted: string;
 	}
 
 
@@ -75,9 +80,9 @@ type price_t =
 *)
 type image_t =
 	{
-	url: XHTML.M.uri;
-	width: int;
-	height: int;
+	bk_url: XHTML.M.uri;
+	bk_width: int;
+	bk_height: int;
 	}
 
 
@@ -85,16 +90,16 @@ type image_t =
 *)
 type book_t =
 	{
-	title: string;
-	author: string;
-	publisher: string;
-	pubdate: string;
-	isbn: ISBN.t;
-	page: XHTML.M.uri;
-	price: price_t;
-	image_small: image_t;
-	image_medium: image_t;
-	image_large: image_t;
+	bk_isbn: ISBN.t;
+	bk_title: string;
+	bk_author: string;
+	bk_publisher: string;
+	bk_pubdate: string;
+	bk_page: XHTML.M.uri;
+	bk_price: price_t;
+	bk_image_small: image_t;
+	bk_image_medium: image_t;
+	bk_image_large: image_t;
 	}
 
 

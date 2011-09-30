@@ -25,6 +25,8 @@ exception Bad_ISBN_character of char
 
 type t = string
 
+type pg_t = string
+
 
 (********************************************************************************)
 (**	{1 Private functions and values}					*)
@@ -73,6 +75,12 @@ let of_string str =
 
 
 external to_string: t -> string = "%identity"
+
+
+external of_pg: pg_t -> t = "%identity"
+
+
+external to_pg: t -> pg_t = "%identity"
 
 
 let is_valid str =

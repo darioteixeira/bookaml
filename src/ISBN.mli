@@ -26,7 +26,12 @@ exception Bad_ISBN_character of char
 
 (**	The type of valid ISBN numbers.
 *)
-type t
+type t = private string
+
+
+(**	The PGOCAML-compatible type used for (de)serialising values of type {!t}
+*)
+type pg_t = private string
 
 
 (********************************************************************************)
@@ -44,6 +49,16 @@ val of_string: string -> t
 (**	Converts a {!t} (representing an ISBN) into a string.
 *)
 val to_string: t -> string
+
+
+(**	Deserialises from a PGOCAML-compatible format.
+*)
+val of_pg: pg_t -> t
+
+
+(**	Serialises into a PGOCAML-compatible format.
+*)
+val to_pg: t -> pg_t
 
 
 (**	Does the given string represent a valid ISBN number?  Both 10 and 13-digit
