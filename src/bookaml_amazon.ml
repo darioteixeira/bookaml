@@ -95,9 +95,9 @@ type book_t =
 	bk_title: string;
 	bk_author: string;
 	bk_publisher: string;
-	bk_pubdate: string;
+	bk_pubdate: string option;
 	bk_page: XHTML.M.uri;
-	bk_price: price_t;
+	bk_price: price_t option;
 	bk_image_small: image_t;
 	bk_image_medium: image_t;
 	bk_image_large: image_t;
@@ -110,6 +110,11 @@ type criteria_t = (string * string) list
 (********************************************************************************)
 (**	{1 Private functions and values}					*)
 (********************************************************************************)
+
+let maybe f = function
+	| Some x -> Some (f x)
+	| None	 -> None
+
 
 let endpoint locale =
 	let host_prefix1 = "ecs.amazonaws."
@@ -136,7 +141,7 @@ let xfind_all forest tag =
 
 let xfind_one forest tag = match xfind_all forest tag with
 	| hd :: _ -> hd
-	| []	  -> Ocsigen_messages.warning (Printf.sprintf "xfind_one tag=%s, #forest=%d" tag (List.length forest)); raise Not_found
+	| []	  -> raise Not_found
 
 
 let rec xget = function
@@ -154,11 +159,16 @@ let (<*>) = xfind_all
 let (<|>) = xfind_one
 
 
+let (<|?>) xml tag =
+	try Some (xfind_one xml tag)
+	with Not_found -> None
+
+
 let (<!>) xml tag = xfind_one xml tag |> xget
 
 
-let (<?>) xml tag =
-	try Some (xfind_one xml tag)
+let (<!?>) xml tag =
+	try Some (xfind_one xml tag |> xget)
 	with Not_found -> None
 
 
@@ -230,7 +240,7 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 		("Operation", "ItemSearch");
 		("ItemPage", string_of_int page);
 		("SearchIndex", "Books");
-		("ResponseGroup", "ItemAttributes,Images");
+		("ResponseGroup", "ItemAttributes,Images,OfferSummary");
 		] @ criteria in
 	make_request ~host ~path ~secret_key:credential.bk_secret_key pairs >>= fun response ->
 	try
@@ -259,9 +269,9 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 				bk_title = item_attributes <!> "Title";
 				bk_author = item_attributes <!> "Author";
 				bk_publisher = item_attributes <!> "Publisher";
-				bk_pubdate = item_attributes <!> "PublicationDate";
+				bk_pubdate = item_attributes <!?> "PublicationDate";
 				bk_page = item <!> "DetailPageURL" |> XHTML.M.uri_of_string;
-				bk_price = item_attributes <|> "ListPrice" |> make_price;
+				bk_price = item_attributes <|?> "ListPrice" |> maybe make_price;
 				bk_image_small = item <|> "SmallImage" |> make_image;
 				bk_image_medium = item <|> "MediumImage" |> make_image;
 				bk_image_large = item <|> "LargeImage" |> make_image;

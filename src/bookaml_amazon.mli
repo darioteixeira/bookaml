@@ -94,9 +94,9 @@ type book_t =
 	bk_title: string;
 	bk_author: string;
 	bk_publisher: string;
-	bk_pubdate: string;
+	bk_pubdate: string option;
 	bk_page: XHTML.M.uri;
-	bk_price: price_t;
+	bk_price: price_t option;
 	bk_image_small: image_t;
 	bk_image_medium: image_t;
 	bk_image_large: image_t;
