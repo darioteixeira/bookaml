@@ -102,9 +102,9 @@ type book_t =
 	bk_price_used: price_t option;
 	bk_price_collectible: price_t option;
 	bk_price_refurbished: price_t option;
-	bk_image_small: image_t;
-	bk_image_medium: image_t;
-	bk_image_large: image_t;
+	bk_image_small: image_t option;
+	bk_image_medium: image_t option;
+	bk_image_large: image_t option;
 	}
 
 
@@ -282,9 +282,9 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 				bk_price_used = offer_summary <|?> "LowestUsedPrice" |> maybe make_price;
 				bk_price_collectible = offer_summary <|?> "LowestCollectiblePrice" |> maybe make_price;
 				bk_price_refurbished = offer_summary <|?> "LowestRefurbishedPrice" |> maybe make_price;
-				bk_image_small = item <|> "SmallImage" |> make_image;
-				bk_image_medium = item <|> "MediumImage" |> make_image;
-				bk_image_large = item <|> "LargeImage" |> make_image;
+				bk_image_small = item <|?> "SmallImage" |> maybe make_image;
+				bk_image_medium = item <|?> "MediumImage" |> maybe make_image;
+				bk_image_large = item <|?> "LargeImage" |> maybe make_image;
 				}
 			with Not_found -> None
 		in Lwt.return (total_results, total_pages, List.filter_map make_book items)

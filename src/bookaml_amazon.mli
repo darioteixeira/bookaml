@@ -101,9 +101,9 @@ type book_t =
 	bk_price_used: price_t option;
 	bk_price_collectible: price_t option;
 	bk_price_refurbished: price_t option;
-	bk_image_small: image_t;
-	bk_image_medium: image_t;
-	bk_image_large: image_t;
+	bk_image_small: image_t option;
+	bk_image_medium: image_t option;
+	bk_image_large: image_t option;
 	}
 
 
