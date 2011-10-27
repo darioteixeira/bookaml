@@ -248,7 +248,6 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 		] @ criteria in
 	make_request ~host ~path ~secret_key:credential.bk_secret_key pairs >>= fun response ->
 	try
-		Std.output_file ~filename:"/home/dario/book.xml" ~text:response;
 		let xml = Simplexmlparser.xmlparser_string response in
 		let items_group = xml <|> "ItemSearchResponse" <|> "Items" in
 		let total_results = items_group <!> "TotalResults" |> int_of_string
