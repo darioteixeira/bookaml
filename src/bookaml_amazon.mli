@@ -18,7 +18,7 @@
 (********************************************************************************)
 
 exception No_response
-exception No_match of ISBN.t
+exception No_match of Bookaml_ISBN.t
 
 
 (********************************************************************************)
@@ -59,51 +59,10 @@ end
 *)
 type credential_t =
 	{
-	bk_locale: Locale.t;
-	bk_associate_tag: string;
-	bk_access_key: string;
-	bk_secret_key: string;
-	}
-
-
-(**	Information about a book's price.
-*)
-type price_t =
-	{
-	bk_amount: int;
-	bk_currency: string;
-	bk_formatted: string;
-	}
-
-
-(**	Information about a book image.
-*)
-type image_t =
-	{
-	bk_url: XHTML.M.uri;
-	bk_width: int;
-	bk_height: int;
-	}
-
-
-(**	Information about a book.
-*)
-type book_t =
-	{
-	bk_isbn: ISBN.t;
-	bk_title: string;
-	bk_author: string;
-	bk_publisher: string;
-	bk_pubdate: string option;
-	bk_page: XHTML.M.uri;
-	bk_price_list: price_t option;
-	bk_price_new: price_t option;
-	bk_price_used: price_t option;
-	bk_price_collectible: price_t option;
-	bk_price_refurbished: price_t option;
-	bk_image_small: image_t option;
-	bk_image_medium: image_t option;
-	bk_image_large: image_t option;
+	locale: Locale.t;
+	associate_tag: string;
+	access_key: string;
+	secret_key: string;
 	}
 
 
@@ -159,7 +118,7 @@ val find_some_books:
 	?version:string ->
 	credential:credential_t ->
 	criteria_t ->
-	(int * int * book_t list) Lwt.t
+	(int * int * Bookaml_book.t list) Lwt.t
 
 
 (**	Finds all the books that match the given search criteria.  Note that if
@@ -173,7 +132,7 @@ val find_all_books:
 	?version:string ->
 	credential:credential_t ->
 	criteria_t ->
-	book_t list Lwt.t
+	Bookaml_book.t list Lwt.t
 
 
 (**	Returns the book that matches the given ISBN.  Note that it actually
@@ -183,8 +142,8 @@ val book_from_isbn:
 	?service:string ->
 	?version:string ->
 	credential:credential_t ->
-	ISBN.t ->
-	book_t option Lwt.t
+	Bookaml_ISBN.t ->
+	Bookaml_book.t option Lwt.t
 
 
 (**	Similar to {!book_from_isbn}, but raises an exception if the book
@@ -194,6 +153,6 @@ val book_from_isbn_exn:
 	?service:string ->
 	?version:string ->
 	credential:credential_t ->
-	ISBN.t ->
-	book_t Lwt.t
+	Bookaml_ISBN.t ->
+	Bookaml_book.t Lwt.t
 

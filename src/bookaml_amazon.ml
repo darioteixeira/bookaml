@@ -11,6 +11,7 @@ open CalendarLib
 open ExtString
 open ExtList
 open Simplexmlparser
+open Bookaml_book
 
 
 (********************************************************************************)
@@ -18,7 +19,7 @@ open Simplexmlparser
 (********************************************************************************)
 
 exception No_response
-exception No_match of ISBN.t
+exception No_match of Bookaml_ISBN.t
 
 
 (********************************************************************************)
@@ -66,45 +67,10 @@ end
 
 type credential_t =
 	{
-	bk_locale: Locale.t;
-	bk_associate_tag: string;
-	bk_access_key: string;
-	bk_secret_key: string;
-	}
-
-
-type price_t =
-	{
-	bk_amount: int;
-	bk_currency: string;
-	bk_formatted: string;
-	}
-
-
-type image_t =
-	{
-	bk_url: XHTML.M.uri;
-	bk_width: int;
-	bk_height: int;
-	}
-
-
-type book_t =
-	{
-	bk_isbn: ISBN.t;
-	bk_title: string;
-	bk_author: string;
-	bk_publisher: string;
-	bk_pubdate: string option;
-	bk_page: XHTML.M.uri;
-	bk_price_list: price_t option;
-	bk_price_new: price_t option;
-	bk_price_used: price_t option;
-	bk_price_collectible: price_t option;
-	bk_price_refurbished: price_t option;
-	bk_image_small: image_t option;
-	bk_image_medium: image_t option;
-	bk_image_large: image_t option;
+	locale: Locale.t;
+	associate_tag: string;
+	access_key: string;
+	secret_key: string;
 	}
 
 
@@ -215,10 +181,10 @@ let make_request ~host ~path ~secret_key pairs =
 
 let make_credential ~locale ~associate_tag ~access_key ~secret_key =
 	{
-	bk_locale = locale;
-	bk_associate_tag = associate_tag;
-	bk_access_key = access_key;
-	bk_secret_key = secret_key;
+	locale = locale;
+	associate_tag = associate_tag;
+	access_key = access_key;
+	secret_key = secret_key;
 	}
 
 
@@ -233,20 +199,20 @@ let make_criteria ?title ?author ?publisher ?keywords () =
 
 
 let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "2011-08-01") ~credential criteria =
-	let (host, path) = endpoint credential.bk_locale
+	let (host, path) = endpoint credential.locale
 	and pairs =
 		[
-		("AssociateTag", credential.bk_associate_tag);
+		("AssociateTag", credential.associate_tag);
 		("Service", service);
 		("Version", version);
-		("AWSAccessKeyId", credential.bk_access_key);
+		("AWSAccessKeyId", credential.access_key);
 		("Timestamp", Printer.Calendar.sprint "%FT%TZ" (Calendar.now ()));	(* Combined date and time in UTC, as per ISO-8601 *)
 		("Operation", "ItemSearch");
 		("ItemPage", string_of_int page);
 		("SearchIndex", "Books");
 		("ResponseGroup", "ItemAttributes,Images,OfferSummary");
 		] @ criteria in
-	make_request ~host ~path ~secret_key:credential.bk_secret_key pairs >>= fun response ->
+	make_request ~host ~path ~secret_key:credential.secret_key pairs >>= fun response ->
 	try
 		let xml = Simplexmlparser.xmlparser_string response in
 		let items_group = xml <|> "ItemSearchResponse" <|> "Items" in
@@ -256,34 +222,34 @@ let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "
 		let make_book item =
 			let make_price list_price =
 				{
-				bk_amount = list_price <!> "Amount" |> int_of_string;
-				bk_currency = list_price <!> "CurrencyCode";
-				bk_formatted = list_price <!> "FormattedPrice";
+				amount = list_price <!> "Amount" |> int_of_string;
+				currency = list_price <!> "CurrencyCode";
+				formatted = list_price <!> "FormattedPrice";
 				}
 			and make_image img =
 				{
-				bk_url = img <!> "URL" |> XHTML.M.uri_of_string;
-				bk_width = img <!> "Width" |> int_of_string;
-				bk_height = img <!> "Height" |> int_of_string;
+				url = img <!> "URL";
+				width = img <!> "Width" |> int_of_string;
+				height = img <!> "Height" |> int_of_string;
 				}
 			and item_attributes = item <|> "ItemAttributes"
 			and offer_summary = item <|> "OfferSummary" in
 			try Some
 				{
-				bk_isbn = item_attributes <!> "ISBN" |> ISBN.of_string;
-				bk_title = item_attributes <!> "Title";
-				bk_author = item_attributes <!> "Author";
-				bk_publisher = item_attributes <!> "Publisher";
-				bk_pubdate = item_attributes <!?> "PublicationDate";
-				bk_page = item <!> "DetailPageURL" |> XHTML.M.uri_of_string;
-				bk_price_list = item_attributes <|?> "ListPrice" |> maybe make_price;
-				bk_price_new = offer_summary <|?> "LowestNewPrice" |> maybe make_price;
-				bk_price_used = offer_summary <|?> "LowestUsedPrice" |> maybe make_price;
-				bk_price_collectible = offer_summary <|?> "LowestCollectiblePrice" |> maybe make_price;
-				bk_price_refurbished = offer_summary <|?> "LowestRefurbishedPrice" |> maybe make_price;
-				bk_image_small = item <|?> "SmallImage" |> maybe make_image;
-				bk_image_medium = item <|?> "MediumImage" |> maybe make_image;
-				bk_image_large = item <|?> "LargeImage" |> maybe make_image;
+				isbn = item_attributes <!> "ISBN" |> Bookaml_ISBN.of_string;
+				title = item_attributes <!> "Title";
+				author = item_attributes <!> "Author";
+				publisher = item_attributes <!> "Publisher";
+				pubdate = item_attributes <!?> "PublicationDate";
+				page = item <!?> "DetailPageURL";
+				price_list = item_attributes <|?> "ListPrice" |> maybe make_price;
+				price_new = offer_summary <|?> "LowestNewPrice" |> maybe make_price;
+				price_used = offer_summary <|?> "LowestUsedPrice" |> maybe make_price;
+				price_collectible = offer_summary <|?> "LowestCollectiblePrice" |> maybe make_price;
+				price_refurbished = offer_summary <|?> "LowestRefurbishedPrice" |> maybe make_price;
+				image_small = item <|?> "SmallImage" |> maybe make_image;
+				image_medium = item <|?> "MediumImage" |> maybe make_image;
+				image_large = item <|?> "LargeImage" |> maybe make_image;
 				}
 			with Not_found -> None
 		in Lwt.return (total_results, total_pages, List.filter_map make_book items)
@@ -304,7 +270,7 @@ let find_all_books ?service ?version ~credential criteria =
 
 
 let book_from_isbn ?service ?version ~credential isbn =
-	let criteria = make_criteria ~keywords:(ISBN.to_string isbn) () in
+	let criteria = make_criteria ~keywords:(Bookaml_ISBN.to_string isbn) () in
 	find_some_books ?service ?version ~credential criteria >>= function
 		| (_, _, hd :: _) -> Lwt.return (Some hd)
 		| (_, _, [])	  -> Lwt.return None

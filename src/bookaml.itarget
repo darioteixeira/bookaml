@@ -1,4 +1,4 @@
-bookaml.cma
-bookaml.cmxa
-bookaml.cmxs
-bookaml.a
+bookaml_with_amazon.cma
+bookaml_with_amazon.cmxa
+bookaml_with_amazon.cmxs
+bookaml_with_amazon.a

@@ -1,31 +1,37 @@
 name = "bookaml"
 version = "1.0"
 description = "The Bookaml library for retrieving book information"
-requires = "threads, extlib, calendar, cryptokit, lwt, ocsigen.server, ocsigen.xhtml"
-archive(byte) = "bookaml.cma"
-archive(native) = "bookaml.cmxa"
-archive(plugin,byte) = "bookaml.cma"
-archive(plugin,native) = "bookaml.cmxs"
 
 package "isbn"
 	(
 	name = "isbn"
 	version = "1.0"
 	requires = "extlib"
-	archive(byte) = "ISBN.cmo"
-	archive(native) = "ISBN.cmx"
-	archive(plugin,byte) = "ISBN.cmo"
-	archive(plugin,native) = "ISBN.cmxs"
+	archive(byte) = "bookaml_ISBN.cmo"
+	archive(native) = "bookaml_ISBN.cmx"
+	archive(plugin,byte) = "bookaml_ISBN.cmo"
+	archive(plugin,native) = "bookaml_ISBN.cmxs"
 	)
 
-package "bookaml_amazon"
+package "book"
 	(
-	name = "bookaml_amazon"
+	name = "book"
 	version = "1.0"
-	requires = "threads, extlib, calendar, cryptokit, lwt, ocsigen.server, ocsigen.xhtml, bookaml.isbn"
-	archive(byte) = "bookaml_amazon.cmo"
-	archive(native) = "bookaml_amazon.cmx"
-	archive(plugin,byte) = "bookaml_amazon.cmo"
-	archive(plugin,native) = "bookaml_amazon.cmxs"
+	requires = "bookaml.isbn"
+	archive(byte) = "bookaml_book.cmo"
+	archive(native) = "bookaml_book.cmx"
+	archive(plugin,byte) = "bookaml_book.cmo"
+	archive(plugin,native) = "bookaml_book.cmxs"
+	)
+
+package "amazon"
+	(
+	name = "amazon"
+	version = "1.0"
+	requires = "threads, extlib, calendar, cryptokit, lwt, ocsigen.server, ocsigen.xhtml"
+	archive(byte) = "bookaml_with_amazon.cma"
+	archive(native) = "bookaml_with_amazon.cmxa"
+	archive(plugin,byte) = "bookaml_with_amazon.cma"
+	archive(plugin,native) = "bookaml_with_amazon.cmxs"
 	)
 

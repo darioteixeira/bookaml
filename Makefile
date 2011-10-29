@@ -7,8 +7,8 @@ SRC_DIR=src
 LIB_DIR=src/_build
 OCAMLBUILD_OPTS=-no-links -use-ocamlfind
 
-LIB_FILES=bookaml.cma bookaml.cmxa bookaml.cmxs bookaml.a
-COMPONENTS=ISBN bookaml_amazon
+LIB_FILES=bookaml_with_amazon.cma bookaml_with_amazon.cmxa bookaml_with_amazon.cmxs bookaml_with_amazon.a
+COMPONENTS=bookaml_ISBN bookaml_book bookaml_amazon
 
 COMPONENTS_MLI=$(foreach ELEM, $(COMPONENTS), $(ELEM).mli)
 COMPONENTS_CMI=$(foreach ELEM, $(COMPONENTS), $(ELEM).cmi)
