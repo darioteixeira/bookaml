@@ -24,14 +24,14 @@ package "book"
 	archive(plugin,native) = "bookaml_book.cmxs"
 	)
 
-package "amazon"
+package "amazon_with_ocsigen"
 	(
-	name = "amazon"
+	name = "amazon_with_ocsigen"
 	version = "1.0"
 	requires = "threads, extlib, calendar, cryptokit, lwt, ocsigen.server, ocsigen.xhtml"
-	archive(byte) = "bookaml_with_amazon.cma"
-	archive(native) = "bookaml_with_amazon.cmxa"
-	archive(plugin,byte) = "bookaml_with_amazon.cma"
-	archive(plugin,native) = "bookaml_with_amazon.cmxs"
+	archive(byte) = "bookaml_amazon_with_ocsigen.cma"
+	archive(native) = "bookaml_amazon_with_ocsigen.cmxa"
+	archive(plugin,byte) = "bookaml_amazon_with_ocsigen.cma"
+	archive(plugin,native) = "bookaml_amazon_with_ocsigen.cmxs"
 	)
 

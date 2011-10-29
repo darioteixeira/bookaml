@@ -7,8 +7,8 @@ SRC_DIR=src
 LIB_DIR=src/_build
 OCAMLBUILD_OPTS=-no-links -use-ocamlfind
 
-LIB_FILES=bookaml_with_amazon.cma bookaml_with_amazon.cmxa bookaml_with_amazon.cmxs bookaml_with_amazon.a
-COMPONENTS=bookaml_ISBN bookaml_book bookaml_amazon
+LIB_FILES=bookaml_amazon_with_ocsigen.cma bookaml_amazon_with_ocsigen.cmxa bookaml_amazon_with_ocsigen.cmxs bookaml_amazon_with_ocsigen.a
+COMPONENTS=bookaml_ISBN bookaml_book bookaml_amazon_ocsigen
 
 COMPONENTS_MLI=$(foreach ELEM, $(COMPONENTS), $(ELEM).mli)
 COMPONENTS_CMI=$(foreach ELEM, $(COMPONENTS), $(ELEM).cmi)
@@ -32,7 +32,7 @@ all: lib
 lib:
 	cd $(SRC_DIR) && ocamlbuild $(OCAMLBUILD_OPTS) bookaml.otarget
 
-apidoc:
+doc:
 	cd $(SRC_DIR) && ocamlbuild $(OCAMLBUILD_OPTS) bookaml.docdir/index.html
 
 install: lib
