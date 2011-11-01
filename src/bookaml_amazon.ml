@@ -6,166 +6,331 @@
 *)
 (********************************************************************************)
 
-(**	This module provides facilities for finding information about books.
-	It works by invoking the Amazon Product Advertising API, and therefore
-	most of its functions require the associate tag, access key, and secret
-	key available to registered users of Amazon Web Services.
-*)
-module type S =
+open ExtList
+open ExtString
+open CalendarLib
+
+
+(********************************************************************************)
+(**	{1 Exceptions}								*)
+(********************************************************************************)
+
+exception No_response
+exception No_match of Bookaml_ISBN.t
+
+
+(********************************************************************************)
+(**	{1 Inner modules}							*)
+(********************************************************************************)
+
+module Locale =
+struct
+	type t = [ `CA | `CN | `DE | `ES | `FR | `IT | `JP | `UK | `US ]
+
+	type pg_t = string
+
+	let of_string = function
+		| "CA" | "ca" -> `CA
+		| "CN" | "cn" -> `CN
+		| "DE" | "de" -> `DE
+		| "ES" | "es" -> `ES
+		| "FR" | "fr" -> `FR
+		| "IT" | "it" -> `IT
+		| "JP" | "jp" -> `JP
+		| "UK" | "uk" -> `UK
+		| "US" | "us" -> `US
+		| x 	      -> invalid_arg ("Locale.of_string: " ^ x)
+
+	let to_string = function
+		| `CA -> "CA"
+		| `CN -> "CN"
+		| `DE -> "DE"
+		| `ES -> "ES"
+		| `FR -> "FR"
+		| `IT -> "IT"
+		| `JP -> "JP"
+		| `UK -> "UK"
+		| `US -> "US"
+
+	let of_pg = of_string
+
+	let to_pg = to_string
+end
+
+
+(********************************************************************************)
+(**	{1 Type definitions}							*)
+(********************************************************************************)
+
+type credential_t =
+	{
+	locale: Locale.t;
+	associate_tag: string;
+	access_key: string;
+	secret_key: string;
+	}
+
+
+type criteria_t = (string * string) list
+
+
+(********************************************************************************)
+(**	{1 Public functions and values}						*)
+(********************************************************************************)
+
+let make_credential ~locale ~associate_tag ~access_key ~secret_key =
+	{locale; associate_tag; access_key; secret_key}
+
+
+let make_criteria ?title ?author ?publisher ?keywords () =
+	let filter (k, v) = match v with
+		| Some data -> Some (k, data)
+		| None	    -> None in
+	let criteria = List.filter_map filter [("Title", title); ("Author", author); ("Publisher", publisher); ("Keywords", keywords)]
+	in match criteria with
+		| [] -> invalid_arg "make_criteria: no criteria given"
+		| xs -> xs
+
+
+(********************************************************************************)
+(**	{1 Private functions and values}					*)
+(********************************************************************************)
+
+let (|>) x f = f x
+
+
+let maybe f = function
+	| Some x -> Some (f x)
+	| None	 -> None
+
+
+let get_endpoint locale =
+	let host_prefix1 = "ecs.amazonaws."
+	and host_prefix2 = "webservices.amazon." in
+	let host = match locale with
+		| `CA -> host_prefix1 ^ "ca"
+		| `CN -> host_prefix2 ^ "cn"
+		| `DE -> host_prefix1 ^ "de"
+		| `ES -> host_prefix2 ^ "es"
+		| `FR -> host_prefix1 ^ "fr"
+		| `IT -> host_prefix2 ^ "it"
+		| `JP -> host_prefix1 ^ "jp"
+		| `UK -> host_prefix1 ^ "co.uk"
+		| `US -> host_prefix1 ^ "com"
+	in (host, ["onca"; "xml"])
+
+
+let get_common_pairs ~page ~service ~version ~credential =
+	[
+	("AssociateTag", credential.associate_tag);
+	("Service", service);
+	("Version", version);
+	("AWSAccessKeyId", credential.access_key);
+	("Timestamp", Printer.Calendar.sprint "%FT%TZ" (Calendar.now ()));	(* Combined date and time in UTC, as per ISO-8601 *)
+	("Operation", "ItemSearch");
+	("ItemPage", string_of_int page);
+	("SearchIndex", "Books");
+	("ResponseGroup", "ItemAttributes,Images,OfferSummary");
+	]
+
+
+let encode_request ~host ~path ~credential pairs =
+	let pathstr = "/" ^ (String.join "/" path)
+	and base_request =
+		pairs |>
+		List.sort ~cmp:(fun (k1, _) (k2, _) -> Pervasives.compare k1 k2) |>	(* Sort items by key *)
+		List.map (fun (k, v) -> (k, Netencoding.Url.encode ~plus:false v)) |>	(* URL-encode values. Note: we do not use '+' for spaces! *)
+		List.map (fun (k, v) -> k ^ "=" ^ v) |>					(* Merge keys and values *)
+		String.join "&"								(* Join all pairs with ampersand *)
+	and base64enc = Cryptokit.Base64.encode_multiline ()
+	and hmac = Cryptokit.MAC.hmac_sha256 credential.secret_key in
+	let payload = "GET\n" ^ host ^ "\n" ^ pathstr ^ "\n" ^ base_request in
+	let signature =
+		hmac#add_string payload;
+		base64enc#put_string hmac#result;
+		base64enc#finish;
+		base64enc#get_string |>
+		String.rchop in
+	let query = base_request ^ "&Signature=" ^ (Netencoding.Url.encode ~plus:false signature) in
+	pathstr ^ "?" ^ query
+
+
+
+(********************************************************************************)
+(**	{1 Public module types}							*)
+(********************************************************************************)
+
+module type XMLPARSER =
 sig
-	(************************************************************************)
-	(**	{1 Exceptions}							*)
-	(************************************************************************)
+	type xml
 
-	exception No_response
-	exception No_match of Bookaml_ISBN.t
-
-
-	(************************************************************************)
-	(**	{1 Inner modules}						*)
-	(************************************************************************)
-
-	(**	Definition of the various supported Amazon locales.
-	*)
-	module Locale:
-	sig
-		type t =
-			[ `CA	(** Canada *)
-			| `CN	(** China *)
-			| `DE	(** Germany *)
-			| `ES	(** Spain *)
-			| `FR	(** France *)
-			| `IT	(** Italy *)
-			| `JP	(** Japan *)
-			| `UK	(** United Kingdom *)
-			| `US	(** United States *)
-			]
-
-		type pg_t = string
-
-		val of_string: string -> t
-		val to_string: t -> string
-
-		val of_pg: pg_t -> t
-		val to_pg: t -> pg_t
-	end
+	val parse: string -> xml list
+	val xfind_all: xml list -> string -> xml list list
+	val xfind_one: xml list -> string -> xml list
+	val xget: xml list -> string
+end
 
 
-	(************************************************************************)
-	(**	{1 Type definitions}						*)
-	(************************************************************************)
+module type HTTPGETTER =
+sig
+	type 'a monad
 
-	(**	It makes sense to wrap in a monadic system such as [Lwt] those functions
-		that may take some time to complete.  If that is the case, then any module
-		that implements this signature should be declared as having module type
-		[Bookaml_amazon.S with type 'a monad_t = 'a Lwt.t].  Nevertheless, for the
-		sake of flexibility we do not actually mandate that [Lwt] be used, and
-		hence why this abstract type ['a monad_t] exists.  It is in fact possible
-		for the implementation to use no monad-based system at all, in which case
-		the dummy monad may be declared: [Bookaml_amazon.S with type 'a monad_t = 'a].
-	*)
-	type 'a monad_t
+	val return: 'a -> 'a monad
+	val fail: exn -> 'a monad
+	val bind: 'a monad -> ('a -> 'b monad) -> 'b monad
+	val list_map: ('a -> 'b monad) -> 'a list -> 'b list monad
+
+	val perform_request: host:string -> string -> string monad
+end
 
 
-	(**	Credential for Amazon Web Services.
-	*)
-	type credential_t =
-		{
-		locale: Locale.t;
-		associate_tag: string;
-		access_key: string;
-		secret_key: string;
-		}
+module type ENGINE =
+sig
+	type 'a monad
 
-
-	(**	Search criteria expected by functions {!find_some_books} and {!find_all_books}.
-		The search criteria must be created beforehand by function {!make_criteria}.
-	*)
-	type criteria_t
-
-
-	(************************************************************************)
-	(**	{1 Public functions and values}					*)
-	(************************************************************************)
-
-	(**	Constructs the AWS credential that is required for functions {!find_some_books},
-		{!find_all_books}, {!book_from_isbn}, and {!book_from_isbn_exn}.
-	*)
-	val make_credential:
-		locale: Locale.t ->
-		associate_tag: string ->
-		access_key: string ->
-		secret_key: string ->
-		credential_t
-
-
-	(**	Constructs the search criteria that may later be given to functions
-		{!find_some_books} or {!find_all_books}.  The search criteria may
-		consist of any combination of [title], [author], [publisher], or
-		generic [keywords].  If none are specified, exception [Invalid_arg]
-		is raised.
-	*)
-	val make_criteria:
-		?title:string ->
-		?author:string ->
-		?publisher:string ->
-		?keywords:string ->
-		unit ->
-		criteria_t
-
-
-	(**	Finds some of the books that match the given search criteria.  The result
-		is a 3-tuple consisting of the total number of books matching the critera,
-		the total number of result pages, and a list of books for the current page.
-		Note that only one page of results (consisting of a maximum of 10 books)
-		can be obtained per invocation of this function.  By default, the first
-		page of results is returned.  If you wish to obtain a different result
-		page, then set parameter [page] with the corresponding page number.  If
-		you wish to obtain all books from all result pages, then consult function
-		{!find_all_books}.
-	*)
 	val find_some_books:
 		?page:int ->
 		?service:string ->
 		?version:string ->
 		credential:credential_t ->
 		criteria_t ->
-		(int * int * Bookaml_book.t list) monad_t
+		(int * int * Bookaml_book.t list) monad
 
-
-	(**	Finds all the books that match the given search criteria.  Note that if
-		the given search criteria are not particularly stringent, this function
-		can easily return hundreds of results and require several independent
-		requests to Amazon's servers.  If you are only interested in the most
-		relevant results, then function {!find_some_books} is more appropriate.
-	*)
 	val find_all_books:
 		?service:string ->
 		?version:string ->
 		credential:credential_t ->
 		criteria_t ->
-		Bookaml_book.t list monad_t
+		Bookaml_book.t list monad
 
-
-	(**	Returns the book that matches the given ISBN.  Note that it actually
-		returns [Some book] if the book was retrievable and [None] otherwise.
-	*)
 	val book_from_isbn:
 		?service:string ->
 		?version:string ->
 		credential:credential_t ->
 		Bookaml_ISBN.t ->
-		Bookaml_book.t option monad_t
+		Bookaml_book.t option monad
 
-
-	(**	Similar to {!book_from_isbn}, but raises an exception if the book
-		was not found or if an error occurred during the operation.
-	*)
 	val book_from_isbn_exn:
 		?service:string ->
 		?version:string ->
 		credential:credential_t ->
 		Bookaml_ISBN.t ->
-		Bookaml_book.t monad_t
+		Bookaml_book.t monad
+end
+
+
+(********************************************************************************)
+(**	{1 Public functors}							*)
+(********************************************************************************)
+
+module Make (Xmlparser: XMLPARSER) (Httpgetter: HTTPGETTER) =
+struct
+	open Bookaml_book
+
+
+	(************************************************************************)
+	(**	{1 Type definitions}						*)
+	(************************************************************************)
+
+	type 'a monad = 'a Httpgetter.monad
+
+
+	(************************************************************************)
+	(**	{1 Private functions and values}				*)
+	(************************************************************************)
+
+	let (>>=) t f = Httpgetter.bind t f
+
+	let (<*>) = Xmlparser.xfind_all
+
+	let (<|>) = Xmlparser.xfind_one
+
+	let (<|?>) xml tag =
+		try Some (Xmlparser.xfind_one xml tag)
+		with Not_found -> None
+
+	let (<!>) xml tag = Xmlparser.xfind_one xml tag |> Xmlparser.xget
+
+	let (<!?>) xml tag =
+		try Some (Xmlparser.xfind_one xml tag |> Xmlparser.xget)
+		with Not_found -> None
+
+
+	(************************************************************************)
+	(**	{1 Public functions and values}					*)
+	(************************************************************************)
+
+	let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "2011-08-01") ~credential criteria =
+		let pairs = criteria @ (get_common_pairs ~page ~service ~version ~credential) in
+		let (host, path) = get_endpoint credential.locale in
+		let request = encode_request ~host ~path ~credential pairs in
+		Httpgetter.perform_request ~host request >>= fun response ->
+		try
+			let xml = Xmlparser.parse response in
+			let items_group = xml <|> "ItemSearchResponse" <|> "Items" in
+			let total_results = items_group <!> "TotalResults" |> int_of_string
+			and total_pages = items_group <!> "TotalPages" |> int_of_string
+			and items = items_group <*> "Item" in
+			let make_book item =
+				let make_price list_price =
+					{
+					amount = list_price <!> "Amount" |> int_of_string;
+					currency = list_price <!> "CurrencyCode";
+					formatted = list_price <!> "FormattedPrice";
+					}
+				and make_image img =
+					{
+					url = img <!> "URL";
+					width = img <!> "Width" |> int_of_string;
+					height = img <!> "Height" |> int_of_string;
+					}
+				and item_attributes = item <|> "ItemAttributes"
+				and offer_summary = item <|> "OfferSummary" in
+				try Some
+					{
+					isbn = item_attributes <!> "ISBN" |> Bookaml_ISBN.of_string;
+					title = item_attributes <!> "Title";
+					author = item_attributes <!> "Author";
+					publisher = item_attributes <!> "Publisher";
+					pubdate = item_attributes <!?> "PublicationDate";
+					page = item <!?> "DetailPageURL";
+					price_list = item_attributes <|?> "ListPrice" |> maybe make_price;
+					price_new = offer_summary <|?> "LowestNewPrice" |> maybe make_price;
+					price_used = offer_summary <|?> "LowestUsedPrice" |> maybe make_price;
+					price_collectible = offer_summary <|?> "LowestCollectiblePrice" |> maybe make_price;
+					price_refurbished = offer_summary <|?> "LowestRefurbishedPrice" |> maybe make_price;
+					image_small = item <|?> "SmallImage" |> maybe make_image;
+					image_medium = item <|?> "MediumImage" |> maybe make_image;
+					image_large = item <|?> "LargeImage" |> maybe make_image;
+					}
+				with Not_found -> None
+			in Httpgetter.return (total_results, total_pages, List.filter_map make_book items)
+		with
+			exc -> Httpgetter.fail exc
+
+
+	let find_all_books ?service ?version ~credential criteria =
+		let get_page i = find_some_books ~page:i ?service ?version ~credential criteria in
+		get_page 1 >>= fun (total_results, total_pages, books) ->
+		if total_pages > 1
+		then
+			let pages = Array.init (total_pages - 1) (fun i -> i+2) |> Array.to_list in
+			Httpgetter.list_map (fun i -> get_page i >>= fun (_, _, xs) -> Httpgetter.return xs) pages >>= fun results ->
+			Httpgetter.return (books @ (List.concat results))
+		else
+			Httpgetter.return books
+
+
+	let book_from_isbn ?service ?version ~credential isbn =
+		let criteria = make_criteria ~keywords:(Bookaml_ISBN.to_string isbn) () in
+		find_some_books ?service ?version ~credential criteria >>= function
+			| (_, _, hd :: _) -> Httpgetter.return (Some hd)
+			| (_, _, [])	  -> Httpgetter.return None
+
+
+	let book_from_isbn_exn ?service ?version ~credential isbn =
+		book_from_isbn ?service ?version ~credential isbn >>= function
+			| Some book -> Httpgetter.return book
+			| None	    -> Httpgetter.fail (No_match isbn)
 end
 

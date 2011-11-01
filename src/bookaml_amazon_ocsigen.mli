@@ -6,5 +6,8 @@
 *)
 (********************************************************************************)
 
-include Bookaml_amazon.S with type 'a monad_t = 'a Lwt.t
+(**	Implementation of {!Bookaml_amazon.ENGINE} using Ocsigen's
+	[Simplexmlparser] and [Ocsigen_http_client] as backends.
+*)
+include Bookaml_amazon.ENGINE with type 'a monad = 'a Lwt.t
 
