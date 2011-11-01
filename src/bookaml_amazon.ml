@@ -160,7 +160,7 @@ let encode_request ~host ~path ~credential pairs =
 (**	{1 Public module types}							*)
 (********************************************************************************)
 
-module type XMLPARSER =
+module type XMLHANDLER =
 sig
 	type xml
 
@@ -226,10 +226,10 @@ end
 (**	{1 Public functors}							*)
 (********************************************************************************)
 
-module Make (Xmlparser: XMLPARSER) (Httpgetter: HTTPGETTER) =
+module Make (Xmlhandler: XMLHANDLER) (Httpgetter: HTTPGETTER) =
 struct
 	open Bookaml_book
-	open Xmlparser
+	open Xmlhandler
 	open Httpgetter
 
 
@@ -271,7 +271,7 @@ struct
 		let request = encode_request ~host ~path ~credential pairs in
 		Httpgetter.perform_request ~host request >>= fun response ->
 		try
-			let xml = Xmlparser.parse response in
+			let xml = Xmlhandler.parse response in
 			let items_group = xml <|> "ItemSearchResponse" <|> "Items" in
 			let total_results = items_group <!> "TotalResults" |> int_of_string
 			and total_pages = items_group <!> "TotalPages" |> int_of_string

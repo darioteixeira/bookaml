@@ -16,11 +16,11 @@ open Bookaml_amazon
 module Xmlhandler =
 struct
 	open ExtList
-	open Simplexmlparser
+	open Xml
 
-	type xml = Simplexmlparser.xml
+	type xml = Xml.xml
 
-	let parse = Simplexmlparser.xmlparser_string
+	let parse s = [Xml.parse_string s]
 
 	let xfind_all forest tag =
 		let is_tag = function
@@ -45,23 +45,20 @@ module Httpgetter =
 struct
 	module Monad =
 	struct
-		include Lwt
+		type 'a t = 'a
 
-		let list_map = Lwt_list.map_p
+		let return x = x
+		let fail x = raise x
+		let bind t f = f t
+		let list_map = List.map
 	end
 
 	let perform_request ~host uri =
-		lwt frame = Ocsigen_http_client.get ~host ~uri () in
-		match frame.Ocsigen_http_frame.frame_content with
-			| Some stream ->
-				let buf = Buffer.create 4096 in
-				let rec string_of_stream stream = match_lwt Ocsigen_stream.next stream with
-					| Ocsigen_stream.Cont (str, stream)	-> Buffer.add_string buf str; string_of_stream stream
-					| Ocsigen_stream.Finished (Some stream) -> string_of_stream stream
-					| Ocsigen_stream.Finished None		-> Lwt.return (Buffer.contents buf)
-				in string_of_stream (Ocsigen_stream.get stream)
-			| None ->
-				Lwt.fail No_response
+		let pipeline = new Http_client.pipeline in
+		let request = new Http_client.get uri in
+		let () = pipeline#add request in
+		let () = pipeline#run () in
+		request#response_body#value
 end
 
 

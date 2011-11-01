@@ -24,14 +24,36 @@ package "book"
 	archive(plugin,native) = "bookaml_book.cmxs"
 	)
 
+package "amazon"
+	(
+	name = "amazon"
+	version = "1.0"
+	requires = "extlib, calendar, netstring, cryptokit, bookaml.isbn, bookaml.book"
+	archive(byte) = "bookaml_amazon.cmo"
+	archive(native) = "bookaml_amazon.cmx"
+	archive(plugin,byte) = "bookaml_amazon.cmo"
+	archive(plugin,native) = "bookaml_amazon.cmxs"
+	)
+
 package "amazon_with_ocsigen"
 	(
 	name = "amazon_with_ocsigen"
 	version = "1.0"
-	requires = "threads, extlib, calendar, cryptokit, lwt, ocsigen.server, ocsigen.xhtml"
+	requires = "threads, extlib, lwt, ocsigen.server, bookaml.amazon"
 	archive(byte) = "bookaml_amazon_with_ocsigen.cma"
 	archive(native) = "bookaml_amazon_with_ocsigen.cmxa"
 	archive(plugin,byte) = "bookaml_amazon_with_ocsigen.cma"
 	archive(plugin,native) = "bookaml_amazon_with_ocsigen.cmxs"
+	)
+
+package "amazon_with_ocamlnet"
+	(
+	name = "amazon_with_ocamlnet"
+	version = "1.0"
+	requires = "extlib, xml-light, netclient, bookaml.amazon"
+	archive(byte) = "bookaml_amazon_with_ocamlnet.cma"
+	archive(native) = "bookaml_amazon_with_ocamlnet.cmxa"
+	archive(plugin,byte) = "bookaml_amazon_with_ocamlnet.cma"
+	archive(plugin,native) = "bookaml_amazon_with_ocamlnet.cmxs"
 	)
 

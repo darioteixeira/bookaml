@@ -103,7 +103,7 @@ val make_criteria:
 (**	{1 Public module types}							*)
 (********************************************************************************)
 
-module type XMLPARSER =
+module type XMLHANDLER =
 sig
 	type xml
 
@@ -205,7 +205,7 @@ end
 (********************************************************************************)
 
 module Make:
-	functor (Xmlparser: XMLPARSER) ->
+	functor (Xmlhandler: XMLHANDLER) ->
 	functor (Httpgetter: HTTPGETTER) ->
 	ENGINE with type 'a monad = 'a Httpgetter.Monad.t
 

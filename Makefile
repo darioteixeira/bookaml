@@ -7,8 +7,15 @@ SRC_DIR=src
 LIB_DIR=src/_build
 OCAMLBUILD_OPTS=-no-links -use-ocamlfind
 
-LIB_FILES=bookaml_amazon_with_ocsigen.cma bookaml_amazon_with_ocsigen.cmxa bookaml_amazon_with_ocsigen.cmxs bookaml_amazon_with_ocsigen.a
-COMPONENTS=bookaml_ISBN bookaml_book bookaml_amazon bookaml_amazon_ocsigen
+LIB_FILES=bookaml_amazon_with_ocsigen.cma \
+	bookaml_amazon_with_ocsigen.cmxa \
+	bookaml_amazon_with_ocsigen.cmxs \
+	bookaml_amazon_with_ocsigen.a \
+	bookaml_amazon_with_ocamlnet.cma \
+	bookaml_amazon_with_ocamlnet.cmxa \
+	bookaml_amazon_with_ocamlnet.cmxs \
+	bookaml_amazon_with_ocamlnet.a
+COMPONENTS=bookaml_ISBN bookaml_book bookaml_amazon bookaml_amazon_ocsigen bookaml_amazon_ocamlnet
 
 COMPONENTS_MLI=$(foreach ELEM, $(COMPONENTS), $(ELEM).mli)
 COMPONENTS_CMI=$(foreach ELEM, $(COMPONENTS), $(ELEM).cmi)
