@@ -43,28 +43,25 @@ end
 
 module Httpgetter =
 struct
-	open Lwt
+	module Monad =
+	struct
+		include Lwt
 
-	type 'a monad = 'a Lwt.t
-
-	let return = Lwt.return
-	let fail = Lwt.fail
-	let bind = Lwt.bind
-	let list_map = Lwt_list.map_p
+		let list_map = Lwt_list.map_p
+	end
 
 	let perform_request ~host uri =
-		Ocsigen_http_client.get ~host ~uri () >>= fun frame ->
+		lwt frame = Ocsigen_http_client.get ~host ~uri () in
 		match frame.Ocsigen_http_frame.frame_content with
 			| Some stream ->
 				let buf = Buffer.create 4096 in
-				let rec string_of_stream stream =
-					Ocsigen_stream.next stream >>= function
-						| Ocsigen_stream.Cont (str, stream)	-> Buffer.add_string buf str; string_of_stream stream
-						| Ocsigen_stream.Finished (Some stream) -> string_of_stream stream
-						| Ocsigen_stream.Finished None		-> return (Buffer.contents buf)
+				let rec string_of_stream stream = match_lwt Ocsigen_stream.next stream with
+					| Ocsigen_stream.Cont (str, stream)	-> Buffer.add_string buf str; string_of_stream stream
+					| Ocsigen_stream.Finished (Some stream) -> string_of_stream stream
+					| Ocsigen_stream.Finished None		-> Lwt.return (Buffer.contents buf)
 				in string_of_stream (Ocsigen_stream.get stream)
 			| None ->
-				fail No_response
+				Lwt.fail No_response
 end
 
 

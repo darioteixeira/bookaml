@@ -173,14 +173,17 @@ end
 
 module type HTTPGETTER =
 sig
-	type 'a monad
+	module Monad:
+	sig
+		type 'a t
 
-	val return: 'a -> 'a monad
-	val fail: exn -> 'a monad
-	val bind: 'a monad -> ('a -> 'b monad) -> 'b monad
-	val list_map: ('a -> 'b monad) -> 'a list -> 'b list monad
+		val return: 'a -> 'a t
+		val fail: exn -> 'a t
+		val bind: 'a t -> ('a -> 'b t) -> 'b t
+		val list_map: ('a -> 'b t) -> 'a list -> 'b list t
+	end
 
-	val perform_request: host:string -> string -> string monad
+	val perform_request: host:string -> string -> string Monad.t
 end
 
 
@@ -226,33 +229,35 @@ end
 module Make (Xmlparser: XMLPARSER) (Httpgetter: HTTPGETTER) =
 struct
 	open Bookaml_book
+	open Xmlparser
+	open Httpgetter
 
 
 	(************************************************************************)
 	(**	{1 Type definitions}						*)
 	(************************************************************************)
 
-	type 'a monad = 'a Httpgetter.monad
+	type 'a monad = 'a Monad.t
 
 
 	(************************************************************************)
 	(**	{1 Private functions and values}				*)
 	(************************************************************************)
 
-	let (>>=) t f = Httpgetter.bind t f
+	let (>>=) t f = Monad.bind t f
 
-	let (<*>) = Xmlparser.xfind_all
+	let (<*>) = xfind_all
 
-	let (<|>) = Xmlparser.xfind_one
+	let (<|>) = xfind_one
 
 	let (<|?>) xml tag =
-		try Some (Xmlparser.xfind_one xml tag)
+		try Some (xfind_one xml tag)
 		with Not_found -> None
 
-	let (<!>) xml tag = Xmlparser.xfind_one xml tag |> Xmlparser.xget
+	let (<!>) xml tag = xfind_one xml tag |> xget
 
 	let (<!?>) xml tag =
-		try Some (Xmlparser.xfind_one xml tag |> Xmlparser.xget)
+		try Some (xfind_one xml tag |> xget)
 		with Not_found -> None
 
 
@@ -304,9 +309,9 @@ struct
 					image_large = item <|?> "LargeImage" |> maybe make_image;
 					}
 				with Not_found -> None
-			in Httpgetter.return (total_results, total_pages, List.filter_map make_book items)
+			in Monad.return (total_results, total_pages, List.filter_map make_book items)
 		with
-			exc -> Httpgetter.fail exc
+			exc -> Monad.fail exc
 
 
 	let find_all_books ?service ?version ~credential criteria =
@@ -315,22 +320,22 @@ struct
 		if total_pages > 1
 		then
 			let pages = Array.init (total_pages - 1) (fun i -> i+2) |> Array.to_list in
-			Httpgetter.list_map (fun i -> get_page i >>= fun (_, _, xs) -> Httpgetter.return xs) pages >>= fun results ->
-			Httpgetter.return (books @ (List.concat results))
+			Monad.list_map (fun i -> get_page i >>= fun (_, _, xs) -> Monad.return xs) pages >>= fun results ->
+			Monad.return (books @ (List.concat results))
 		else
-			Httpgetter.return books
+			Monad.return books
 
 
 	let book_from_isbn ?service ?version ~credential isbn =
 		let criteria = make_criteria ~keywords:(Bookaml_ISBN.to_string isbn) () in
 		find_some_books ?service ?version ~credential criteria >>= function
-			| (_, _, hd :: _) -> Httpgetter.return (Some hd)
-			| (_, _, [])	  -> Httpgetter.return None
+			| (_, _, hd :: _) -> Monad.return (Some hd)
+			| (_, _, [])	  -> Monad.return None
 
 
 	let book_from_isbn_exn ?service ?version ~credential isbn =
 		book_from_isbn ?service ?version ~credential isbn >>= function
-			| Some book -> Httpgetter.return book
-			| None	    -> Httpgetter.fail (No_match isbn)
+			| Some book -> Monad.return book
+			| None	    -> Monad.fail (No_match isbn)
 end
 

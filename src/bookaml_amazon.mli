@@ -116,14 +116,17 @@ end
 
 module type HTTPGETTER =
 sig
-	type 'a monad
+	module Monad:
+	sig
+		type 'a t
 
-	val return: 'a -> 'a monad
-	val fail: exn -> 'a monad
-	val bind: 'a monad -> ('a -> 'b monad) -> 'b monad
-	val list_map: ('a -> 'b monad) -> 'a list -> 'b list monad
+		val return: 'a -> 'a t
+		val fail: exn -> 'a t
+		val bind: 'a t -> ('a -> 'b t) -> 'b t
+		val list_map: ('a -> 'b t) -> 'a list -> 'b list t
+	end
 
-	val perform_request: host:string -> string -> string monad
+	val perform_request: host:string -> string -> string Monad.t
 end
 
 
@@ -204,5 +207,5 @@ end
 module Make:
 	functor (Xmlparser: XMLPARSER) ->
 	functor (Httpgetter: HTTPGETTER) ->
-	ENGINE with type 'a monad = 'a Httpgetter.monad
+	ENGINE with type 'a monad = 'a Httpgetter.Monad.t
 
