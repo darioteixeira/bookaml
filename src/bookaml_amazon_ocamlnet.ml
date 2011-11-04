@@ -53,9 +53,10 @@ struct
 		let list_map = List.map
 	end
 
-	let perform_request ~host uri =
+	let perform_request ~host request =
+		let dst = "http://" ^ host ^ request in
 		let pipeline = new Http_client.pipeline in
-		let request = new Http_client.get uri in
+		let request = new Http_client.get dst in
 		let () = pipeline#add request in
 		let () = pipeline#run () in
 		request#response_body#value

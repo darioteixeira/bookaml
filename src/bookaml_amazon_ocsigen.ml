@@ -50,8 +50,8 @@ struct
 		let list_map = Lwt_list.map_p
 	end
 
-	let perform_request ~host uri =
-		lwt frame = Ocsigen_http_client.get ~host ~uri () in
+	let perform_request ~host request =
+		lwt frame = Ocsigen_http_client.get ~host ~uri:request () in
 		match frame.Ocsigen_http_frame.frame_content with
 			| Some stream ->
 				let buf = Buffer.create 4096 in
