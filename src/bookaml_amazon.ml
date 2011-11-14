@@ -291,9 +291,11 @@ struct
 					}
 				and item_attributes = item <|> "ItemAttributes"
 				and offer_summary = item <|> "OfferSummary" in
+				let isbn = item_attributes <!> "ISBN" |> Bookaml_ISBN.of_string in
 				try Some
 					{
-					isbn = item_attributes <!> "ISBN" |> Bookaml_ISBN.of_string;
+					isbn10 = Bookaml_ISBN.to_10 isbn;
+					isbn13 = Bookaml_ISBN.to_13 isbn;
 					title = item_attributes <!> "Title";
 					author = item_attributes <!> "Author";
 					publisher = item_attributes <!> "Publisher";
