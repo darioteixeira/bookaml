@@ -29,7 +29,7 @@ type image_t =
 
 type t =
 	{
-	isbn: Bookaml_ISBN.t;
+	isbn: [ `ISBN10 | `ISBN13 ] Bookaml_ISBN.t;
 	title: string;
 	author: string;
 	publisher: string;

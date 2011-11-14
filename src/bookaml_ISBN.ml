@@ -23,7 +23,8 @@ exception Bad_ISBN_character of char
 (**	{1 Type definitions}							*)
 (********************************************************************************)
 
-type t = string
+type 'a t = [ `ISBN10 of string | `ISBN13 of string ]
+
 
 type pg_t = string
 
@@ -32,9 +33,6 @@ type pg_t = string
 (**	{1 Private functions and values}					*)
 (********************************************************************************)
 
-(**	Returns the integer value corresponding to a given digit (as a character).
-	Note that the "digits" 'X' and 'x' represent number 10.
-*)
 let value =
 	let base = int_of_char '0' in
 	function
@@ -43,20 +41,41 @@ let value =
 		| x		  -> raise (Bad_ISBN_character x)
 
 
-(**	Checks whether a 10-digit ISBN is correct.  Note that
-	this function expects to be given a 10 digit list.
-*)
+let digit = 
+	let base = int_of_char '0' in
+	function
+		| 10			  -> 'X'
+		| x when x >= 0 && x < 10 -> char_of_int (x + base)
+		| x			  -> invalid_arg ("Bookaml_ISBN.digit: " ^ (string_of_int x))
+
+
+let sum10 digits =
+	List.fold_left (+) 0 (List.mapi (fun i x -> (10 - i) * (value x)) digits)
+
+
+let sum13 digits =
+	List.fold_left (+) 0 (List.mapi (fun i x -> (if i mod 2 = 1 then 3 else 1) * (value x)) digits)
+
+
 let check10 digits =
-	let sum = List.fold_left (+) 0 (List.mapi (fun i x -> (10 - i) * (value x)) digits)
-	in sum mod 11 = 0
+	(sum10 digits) mod 11 = 0
 
 
-(**	Checks whether a 13-digit ISBN is correct.  Note that
-	this function expects to be given a 13 digit list.
-*)
 let check13 digits =
-	let sum = List.fold_left (+) 0 (List.mapi (fun i x -> (if i mod 2 = 1 then 3 else 1) * (value x)) digits)
-	in sum mod 10 = 0
+	(sum13 digits) mod 10 = 0
+
+
+let compute10 digits =
+	digit (11 - (sum10 digits mod 11))
+		
+
+let compute13 digits =
+	digit ((10 - (sum13 digits mod 10)) mod 10)
+		
+
+let is_valid_aux f str =
+	try ignore (f str); true
+	with _ -> false
 
 
 (********************************************************************************)
@@ -65,25 +84,84 @@ let check13 digits =
 
 let of_string str =
 	let digits = List.filter ((<>) '-') (String.explode str) in
-	let checker = match List.length digits with
-		| 10 -> check10
-		| 13 -> check13
+	let (checker, cons) = match List.length digits with
+		| 10 -> (check10, fun x -> `ISBN10 x)
+		| 13 -> (check13, fun x -> `ISBN13 x)
 		| _  -> raise (Bad_ISBN_length str) in
 	if checker digits
-	then String.implode digits
+	then cons (String.implode digits)
 	else raise (Bad_ISBN_checksum str)
 
 
-external to_string: t -> string = "%identity"
+let of_string10 str = match of_string str with
+	| (`ISBN10 _) as isbn -> isbn
+	| (`ISBN13 _)	      -> raise (Bad_ISBN_length str)
 
 
-external of_pg: pg_t -> t = "%identity"
+let of_string13 str = match of_string str with
+	| (`ISBN13 _) as isbn -> isbn
+	| (`ISBN10 _)	      -> raise (Bad_ISBN_length str)
 
 
-external to_pg: t -> pg_t = "%identity"
+let to_string = function
+	| `ISBN10 x -> x
+	| `ISBN13 x -> x
 
 
-let is_valid str =
-	try ignore (of_string str); true
-	with _ -> false
+let to_10 = function
+	| `ISBN10 _ as x ->
+		Some x
+	| `ISBN13 x when String.starts_with x "978" ->
+		let digits = String.explode (String.slice ~first:3 ~last:(-1) x) in
+		let check_digit = compute10 digits in
+		Some (`ISBN10 (String.implode (digits @ [check_digit])))
+	| `ISBN13 _ ->
+		None
+
+
+let to_13 = function
+	| `ISBN10 x ->
+		let digits = String.explode ("978" ^ String.slice ~last:(-1) x) in
+		let check_digit = compute13 digits in
+		`ISBN13 (String.implode (digits @ [check_digit]))
+	| `ISBN13 _ as x ->
+		x
+
+
+let of_pg xstr = match String.length xstr with
+	| 10 -> `ISBN10 xstr
+	| 13 -> `ISBN13 xstr
+	| _  -> invalid_arg ("Bookaml_ISBN.of_pg: " ^ xstr)
+
+
+let of_pg10 xstr = match String.length xstr with
+	| 10 -> `ISBN10 xstr
+	| _  -> invalid_arg ("Bookaml_ISBN.of_pg10: " ^ xstr)
+
+
+let of_pg13 xstr = match String.length xstr with
+	| 13 -> `ISBN13 xstr
+	| _  -> invalid_arg ("Bookaml_ISBN.of_pg13: " ^ xstr)
+
+
+let to_pg = to_string
+
+
+let is_valid = is_valid_aux of_string
+
+
+let is_valid10 = is_valid_aux of_string10
+
+
+let is_valid13 = is_valid_aux of_string13
+
+
+let is10 = function
+	| `ISBN10 _ -> true
+	| `ISBN13 _ -> false
+
+
+let is13 = function
+	| `ISBN10 _ -> false
+	| `ISBN13 _ -> true
 

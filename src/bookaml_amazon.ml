@@ -16,7 +16,7 @@ open CalendarLib
 (********************************************************************************)
 
 exception No_response
-exception No_match of Bookaml_ISBN.t
+exception No_match of [ `ISBN10 | `ISBN13 ] Bookaml_ISBN.t
 
 
 (********************************************************************************)
@@ -210,14 +210,14 @@ sig
 		?service:string ->
 		?version:string ->
 		credential:credential_t ->
-		Bookaml_ISBN.t ->
+		[< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
 		Bookaml_book.t option monad
 
 	val book_from_isbn_exn:
 		?service:string ->
 		?version:string ->
 		credential:credential_t ->
-		Bookaml_ISBN.t ->
+		[< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
 		Bookaml_book.t monad
 end
 
@@ -336,6 +336,6 @@ struct
 	let book_from_isbn_exn ?service ?version ~credential isbn =
 		book_from_isbn ?service ?version ~credential isbn >>= function
 			| Some book -> Monad.return book
-			| None	    -> Monad.fail (No_match isbn)
+			| None	    -> Monad.fail (No_match (isbn :> [ `ISBN10 | `ISBN13] Bookaml_ISBN.t))
 end
 
