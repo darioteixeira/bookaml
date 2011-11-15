@@ -26,7 +26,7 @@ exception Bad_ISBN_character of char
 
 (**	The type of valid ISBN numbers.
 *)
-type +'a t
+type +'a t constraint 'a = [< `ISBN10 | `ISBN13 ]
 
 
 (**	The PGOCAML-compatible type used for (de)serialising values of type {!t}

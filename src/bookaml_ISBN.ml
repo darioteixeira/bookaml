@@ -23,9 +23,10 @@ exception Bad_ISBN_character of char
 (**	{1 Type definitions}							*)
 (********************************************************************************)
 
-type 'a t =
+type +'a t =
 	| ISBN10 of string
 	| ISBN13 of string
+	constraint 'a = [< `ISBN10 | `ISBN13 ]
 
 
 type pg_t = string
