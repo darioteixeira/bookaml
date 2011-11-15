@@ -156,12 +156,12 @@ let is_valid10 = is_valid_aux of_string10
 let is_valid13 = is_valid_aux of_string13
 
 
-let is10 = function
+let is_10 = function
 	| `ISBN10 _ -> true
 	| `ISBN13 _ -> false
 
 
-let is13 = function
+let is_13 = function
 	| `ISBN10 _ -> false
 	| `ISBN13 _ -> true
 

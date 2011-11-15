@@ -31,7 +31,7 @@ type +'a t
 
 (**	The PGOCAML-compatible type used for (de)serialising values of type {!t}
 *)
-type pg_t = private string
+type pg_t = string
 
 
 (********************************************************************************)
@@ -139,10 +139,10 @@ val is_valid13: string -> bool
 
 (**	Is the given {!t} a 10-digit ISBN?
 *)
-val is10: [< `ISBN10 | `ISBN13 ] t -> bool
+val is_10: [< `ISBN10 | `ISBN13 ] t -> bool
 
 
 (**	Is the given {!t} a 13-digit ISBN?
 *)
-val is13: [< `ISBN10 | `ISBN13 ] t -> bool
+val is_13: [< `ISBN10 | `ISBN13 ] t -> bool
 
