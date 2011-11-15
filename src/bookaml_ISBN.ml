@@ -23,7 +23,9 @@ exception Bad_ISBN_character of char
 (**	{1 Type definitions}							*)
 (********************************************************************************)
 
-type 'a t = [ `ISBN10 of string | `ISBN13 of string ]
+type 'a t =
+	| ISBN10 of string
+	| ISBN13 of string
 
 
 type pg_t = string
@@ -85,8 +87,8 @@ let is_valid_aux f str =
 let of_string str =
 	let digits = List.filter ((<>) '-') (String.explode str) in
 	let (checker, cons) = match List.length digits with
-		| 10 -> (check10, fun x -> `ISBN10 x)
-		| 13 -> (check13, fun x -> `ISBN13 x)
+		| 10 -> (check10, fun x -> ISBN10 x)
+		| 13 -> (check13, fun x -> ISBN13 x)
 		| _  -> raise (Bad_ISBN_length str) in
 	if checker digits
 	then cons (String.implode digits)
@@ -94,53 +96,53 @@ let of_string str =
 
 
 let of_string10 str = match of_string str with
-	| (`ISBN10 _) as isbn -> isbn
-	| (`ISBN13 _)	      -> raise (Bad_ISBN_length str)
+	| (ISBN10 _) as isbn -> isbn
+	| (ISBN13 _)	     -> raise (Bad_ISBN_length str)
 
 
 let of_string13 str = match of_string str with
-	| (`ISBN13 _) as isbn -> isbn
-	| (`ISBN10 _)	      -> raise (Bad_ISBN_length str)
+	| (ISBN13 _) as isbn -> isbn
+	| (ISBN10 _)	     -> raise (Bad_ISBN_length str)
 
 
 let to_string = function
-	| `ISBN10 x -> x
-	| `ISBN13 x -> x
+	| ISBN10 x -> x
+	| ISBN13 x -> x
 
 
 let to_10 = function
-	| `ISBN10 _ as x ->
+	| ISBN10 _ as x ->
 		Some x
-	| `ISBN13 x when String.starts_with x "978" ->
+	| ISBN13 x when String.starts_with x "978" ->
 		let digits = String.explode (String.slice ~first:3 ~last:(-1) x) in
 		let check_digit = compute10 digits in
-		Some (`ISBN10 (String.implode (digits @ [check_digit])))
-	| `ISBN13 _ ->
+		Some (ISBN10 (String.implode (digits @ [check_digit])))
+	| ISBN13 _ ->
 		None
 
 
 let to_13 = function
-	| `ISBN10 x ->
+	| ISBN10 x ->
 		let digits = String.explode ("978" ^ String.slice ~last:(-1) x) in
 		let check_digit = compute13 digits in
-		`ISBN13 (String.implode (digits @ [check_digit]))
-	| `ISBN13 _ as x ->
+		ISBN13 (String.implode (digits @ [check_digit]))
+	| ISBN13 _ as x ->
 		x
 
 
 let of_pg xstr = match String.length xstr with
-	| 10 -> `ISBN10 xstr
-	| 13 -> `ISBN13 xstr
+	| 10 -> ISBN10 xstr
+	| 13 -> ISBN13 xstr
 	| _  -> invalid_arg ("Bookaml_ISBN.of_pg: " ^ xstr)
 
 
 let of_pg10 xstr = match String.length xstr with
-	| 10 -> `ISBN10 xstr
+	| 10 -> ISBN10 xstr
 	| _  -> invalid_arg ("Bookaml_ISBN.of_pg10: " ^ xstr)
 
 
 let of_pg13 xstr = match String.length xstr with
-	| 13 -> `ISBN13 xstr
+	| 13 -> ISBN13 xstr
 	| _  -> invalid_arg ("Bookaml_ISBN.of_pg13: " ^ xstr)
 
 
@@ -157,11 +159,11 @@ let is_valid13 = is_valid_aux of_string13
 
 
 let is_10 = function
-	| `ISBN10 _ -> true
-	| `ISBN13 _ -> false
+	| ISBN10 _ -> true
+	| ISBN13 _ -> false
 
 
 let is_13 = function
-	| `ISBN10 _ -> false
-	| `ISBN13 _ -> true
+	| ISBN10 _ -> false
+	| ISBN13 _ -> true
 
