@@ -36,7 +36,7 @@ type t =
 	publisher: string;
 	pubdate: string option;
 	page: string option;
-	price_list: price_t option;
+	list_price: price_t option;
 	price_new: price_t option;
 	price_used: price_t option;
 	price_collectible: price_t option;

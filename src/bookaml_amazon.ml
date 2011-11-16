@@ -301,7 +301,7 @@ struct
 					publisher = item_attributes <!> "Publisher";
 					pubdate = item_attributes <!?> "PublicationDate";
 					page = item <!?> "DetailPageURL";
-					price_list = item_attributes <|?> "ListPrice" |> maybe make_price;
+					list_price = item_attributes <|?> "ListPrice" |> maybe make_price;
 					price_new = offer_summary <|?> "LowestNewPrice" |> maybe make_price;
 					price_used = offer_summary <|?> "LowestUsedPrice" |> maybe make_price;
 					price_collectible = offer_summary <|?> "LowestCollectiblePrice" |> maybe make_price;
