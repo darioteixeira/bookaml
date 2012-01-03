@@ -39,7 +39,7 @@ package "amazon_with_ocsigen"
 	(
 	name = "amazon_with_ocsigen"
 	version = "1.0"
-	requires = "threads, extlib, calendar, netstring, cryptokit, lwt, ocsigen.server"
+	requires = "threads, extlib, calendar, netstring, cryptokit, lwt, ocsigenserver"
 	archive(byte) = "bookaml_amazon_with_ocsigen.cma"
 	archive(native) = "bookaml_amazon_with_ocsigen.cmxa"
 	archive(plugin,byte) = "bookaml_amazon_with_ocsigen.cma"
