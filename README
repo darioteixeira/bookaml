@@ -2,7 +2,7 @@
 | README for Bookaml 1.0						|
 |									|
 | Dario Teixeira (dario.teixeira@yahoo.com)				|
-| October 2010								|
+| January 2012								|
 =========================================================================
 
 1. Overview
@@ -21,7 +21,8 @@ access keys.
 2. Dependencies
 ===============
 
-Bookaml depends on ExtLib, Calendar, Cryptokit, Lwt, and Ocsigen [2,3,4,5,6].
+Bookaml depends on ExtLib, Calendar, Cryptokit, Ocamlnet, Lwt, and Ocsigen
+[2,3,4,5,6,7].
 
 
 3. Building and installing
@@ -46,6 +47,7 @@ References
 [2] http://code.google.com/p/ocaml-extlib/
 [3] http://calendar.forge.ocamlcore.org/
 [4] http://forge.ocamlcore.org/projects/cryptokit/
-[5] http://www.ocsigen.org/lwt
-[6] http://www.ocsigen.org/
+[5] http://projects.camlcity.org/projects/ocamlnet.html
+[6] http://www.ocsigen.org/lwt
+[7] http://www.ocsigen.org/
 
