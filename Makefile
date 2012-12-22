@@ -1,57 +1,38 @@
-#
-# Makefile for Bookaml
-#
+# OASIS_START
+# DO NOT EDIT (digest: bc1e05bfc8b39b664f29dae8dbd3ebbb)
 
-PKG_NAME=bookaml
-SRC_DIR=src
-LIB_DIR=src/_build
-OCAMLBUILD_OPTS=-no-links -use-ocamlfind
+SETUP = ocaml setup.ml
 
-LIB_FILES=bookaml_amazon_with_ocsigen.cma \
-	bookaml_amazon_with_ocsigen.cmxa \
-	bookaml_amazon_with_ocsigen.cmxs \
-	bookaml_amazon_with_ocsigen.a \
-	bookaml_amazon_with_ocamlnet.cma \
-	bookaml_amazon_with_ocamlnet.cmxa \
-	bookaml_amazon_with_ocamlnet.cmxs \
-	bookaml_amazon_with_ocamlnet.a
-COMPONENTS=bookaml_ISBN bookaml_book bookaml_amazon bookaml_amazon_ocsigen bookaml_amazon_ocamlnet
+build: setup.data
+	$(SETUP) -build $(BUILDFLAGS)
 
-COMPONENTS_MLI=$(foreach ELEM, $(COMPONENTS), $(ELEM).mli)
-COMPONENTS_CMI=$(foreach ELEM, $(COMPONENTS), $(ELEM).cmi)
-COMPONENTS_CMO=$(foreach ELEM, $(COMPONENTS), $(ELEM).cmo)
-COMPONENTS_CMX=$(foreach ELEM, $(COMPONENTS), $(ELEM).cmx)
-COMPONENTS_OBJ=$(foreach ELEM, $(COMPONENTS), $(ELEM).o)
+doc: setup.data build
+	$(SETUP) -doc $(DOCFLAGS)
 
-LIB_TARGETS=$(LIB_FILES) $(COMPONENTS_CMI) $(COMPONENTS_CMO) $(COMPONENTS_CMX) $(COMPONENTS_OBJ)
-SRC_TARGETS=$(COMPONENTS_MLI)
-FQ_LIB_TARGETS=$(foreach TARGET, $(LIB_TARGETS), $(LIB_DIR)/$(TARGET))
-FQ_SRC_TARGETS=$(foreach TARGET, $(SRC_TARGETS), $(SRC_DIR)/$(TARGET))
-TARGETS= $(FQ_LIB_TARGETS) $(FQ_SRC_TARGETS)
+test: setup.data build
+	$(SETUP) -test $(TESTFLAGS)
 
+all: 
+	$(SETUP) -all $(ALLFLAGS)
 
-#
-# Rules
-#
+install: setup.data
+	$(SETUP) -install $(INSTALLFLAGS)
 
-all: lib
+uninstall: setup.data
+	$(SETUP) -uninstall $(UNINSTALLFLAGS)
 
-lib:
-	cd $(SRC_DIR) && ocamlbuild $(OCAMLBUILD_OPTS) bookaml.otarget
+reinstall: setup.data
+	$(SETUP) -reinstall $(REINSTALLFLAGS)
 
-doc:
-	cd $(SRC_DIR) && ocamlbuild $(OCAMLBUILD_OPTS) bookaml.docdir/index.html
+clean: 
+	$(SETUP) -clean $(CLEANFLAGS)
 
-install: lib
-	ocamlfind install $(PKG_NAME) META $(TARGETS)
+distclean: 
+	$(SETUP) -distclean $(DISTCLEANFLAGS)
 
-uninstall:
-	ocamlfind remove $(PKG_NAME)
+setup.data:
+	$(SETUP) -configure $(CONFIGUREFLAGS)
 
-reinstall: lib
-	ocamlfind remove $(PKG_NAME)
-	ocamlfind install $(PKG_NAME) META $(TARGETS)
+.PHONY: build doc test all install uninstall reinstall clean distclean configure
 
-clean:
-	cd $(SRC_DIR) && ocamlbuild $(OCAMLBUILD_OPTS) -clean
-
+# OASIS_STOP
