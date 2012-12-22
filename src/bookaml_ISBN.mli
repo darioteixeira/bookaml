@@ -1,12 +1,12 @@
 (********************************************************************************)
 (*	Bookaml_ISBN.mli
-	Copyright (c) 2010-2011 Dario Teixeira (dario.teixeira@yahoo.com)
+	Copyright (c) 2010-2012 Dario Teixeira (dario.teixeira@yahoo.com)
 	This software is distributed under the terms of the GNU GPL version 2.
 	See LICENSE file for full license text.
 *)
 (********************************************************************************)
 
-(**	This module encapsulates ISBNs.  It makes sure that any given ISBN is
+(**	Module encapsulating ISBNs.  It makes sure that any given ISBN is
 	correct, taking advantage of the check digit present in every ISBN.
 	It supports both 10 and 13-digit ISBNs.
 *)

@@ -1,6 +1,6 @@
 (********************************************************************************)
 (*	Bookaml_amazon.ml
-	Copyright (c) 2010-2011 Dario Teixeira (dario.teixeira@yahoo.com)
+	Copyright (c) 2010-2012 Dario Teixeira (dario.teixeira@yahoo.com)
 	This software is distributed under the terms of the GNU GPL version 2.
 	See LICENSE file for full license text.
 *)
@@ -189,7 +189,7 @@ end
 
 module type ENGINE =
 sig
-	type 'a monad
+	type 'a monad_t
 
 	val find_some_books:
 		?page:int ->
@@ -197,28 +197,28 @@ sig
 		?version:string ->
 		credential:credential_t ->
 		criteria_t ->
-		(int * int * Bookaml_book.t list) monad
+		(int * int * Bookaml_book.t list) monad_t
 
 	val find_all_books:
 		?service:string ->
 		?version:string ->
 		credential:credential_t ->
 		criteria_t ->
-		Bookaml_book.t list monad
+		Bookaml_book.t list monad_t
 
 	val book_from_isbn:
 		?service:string ->
 		?version:string ->
 		credential:credential_t ->
 		[< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
-		Bookaml_book.t option monad
+		Bookaml_book.t option monad_t
 
 	val book_from_isbn_exn:
 		?service:string ->
 		?version:string ->
 		credential:credential_t ->
 		[< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
-		Bookaml_book.t monad
+		Bookaml_book.t monad_t
 end
 
 
@@ -237,7 +237,7 @@ struct
 	(**	{1 Type definitions}						*)
 	(************************************************************************)
 
-	type 'a monad = 'a Monad.t
+	type 'a monad_t = 'a Monad.t
 
 
 	(************************************************************************)

@@ -1,11 +1,13 @@
 (********************************************************************************)
 (*	Bookaml_book.mli
-	Copyright (c) 2010-2011 Dario Teixeira (dario.teixeira@yahoo.com)
+	Copyright (c) 2010-2012 Dario Teixeira (dario.teixeira@yahoo.com)
 	This software is distributed under the terms of the GNU GPL version 2.
 	See LICENSE file for full license text.
 *)
 (********************************************************************************)
 
+(**	Basic definitions concerning books.
+*)
 
 (********************************************************************************)
 (**	{1 Type definitions}							*)

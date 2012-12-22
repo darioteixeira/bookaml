@@ -1,12 +1,12 @@
 (********************************************************************************)
 (*	Bookaml_amazon.mli
-	Copyright (c) 2010-2011 Dario Teixeira (dario.teixeira@yahoo.com)
+	Copyright (c) 2010-2012 Dario Teixeira (dario.teixeira@yahoo.com)
 	This software is distributed under the terms of the GNU GPL version 2.
 	See LICENSE file for full license text.
 *)
 (********************************************************************************)
 
-(**	This module provides facilities for finding information about books.
+(**	Module providing facilities for finding information about books.
 	It works by invoking the Amazon Product Advertising API, and therefore
 	most of its functions require the associate tag, access key, and secret
 	key available to registered users of Amazon Web Services.
@@ -135,13 +135,13 @@ sig
 	(**	It makes sense to wrap in a monadic system such as [Lwt] those functions
 		that may take some time to complete.  If that is the case, then any module
 		that implements this signature should be declared as having module type
-		[Bookaml_amazon.ENGINE with type 'a monad = 'a Lwt.t].  Nevertheless,
+		[Bookaml_amazon.ENGINE with type 'a monad_t = 'a Lwt.t].  Nevertheless,
 		for the sake of flexibility we do not actually mandate that [Lwt] be used,
-		and hence why this abstract type ['a monad] exists.  It is in fact possible
+		and hence why this abstract type ['a monad_t] exists.  It is in fact possible
 		for the implementation to use no monad-based system at all, in which case the
-		dummy monad may be declared: [Bookaml_amazon.ENGINE with type 'a monad = 'a].
+		dummy monad may be declared: [Bookaml_amazon.ENGINE with type 'a monad_t = 'a].
 	*)
-	type 'a monad
+	type 'a monad_t
 
 
 	(**	Finds some of the books that match the given search criteria.  The result
@@ -160,7 +160,7 @@ sig
 		?version:string ->
 		credential:credential_t ->
 		criteria_t ->
-		(int * int * Bookaml_book.t list) monad
+		(int * int * Bookaml_book.t list) monad_t
 
 
 	(**	Finds all the books that match the given search criteria.  Note that if
@@ -174,7 +174,7 @@ sig
 		?version:string ->
 		credential:credential_t ->
 		criteria_t ->
-		Bookaml_book.t list monad
+		Bookaml_book.t list monad_t
 
 
 	(**	Returns the book that matches the given ISBN.  Note that it actually
@@ -185,7 +185,7 @@ sig
 		?version:string ->
 		credential:credential_t ->
 		[< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
-		Bookaml_book.t option monad
+		Bookaml_book.t option monad_t
 
 
 	(**	Similar to {!book_from_isbn}, but raises an exception if the book
@@ -196,7 +196,7 @@ sig
 		?version:string ->
 		credential:credential_t ->
 		[< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
-		Bookaml_book.t monad
+		Bookaml_book.t monad_t
 end
 
 
@@ -207,5 +207,5 @@ end
 module Make:
 	functor (Xmlhandler: XMLHANDLER) ->
 	functor (Httpgetter: HTTPGETTER) ->
-	ENGINE with type 'a monad = 'a Httpgetter.Monad.t
+	ENGINE with type 'a monad_t = 'a Httpgetter.Monad.t
 
