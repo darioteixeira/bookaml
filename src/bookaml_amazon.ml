@@ -6,9 +6,10 @@
 *)
 (********************************************************************************)
 
-open ExtList
-open ExtString
 open CalendarLib
+
+module List = struct include List include BatList end
+module String = struct include String include BatString end
 
 
 (********************************************************************************)

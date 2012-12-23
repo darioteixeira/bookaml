@@ -8,6 +8,8 @@
 
 open Bookaml_amazon
 
+module List = struct include List include BatList end
+
 
 (********************************************************************************)
 (**	{1 Private modules}							*)
@@ -15,7 +17,6 @@ open Bookaml_amazon
 
 module Xmlhandler =
 struct
-	open ExtList
 	open Simplexmlparser
 
 	type xml = Simplexmlparser.xml

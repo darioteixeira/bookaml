@@ -17,21 +17,21 @@ Library "bookaml"
   FindlibName:		bookaml
   Path:			src
   Modules:		Bookaml_ISBN, Bookaml_book, Bookaml_amazon
-  BuildDepends:		extlib, calendar, cryptokit, netstring
+  BuildDepends:		batteries, calendar, cryptokit, netstring
 
 Library "bookaml_ocsigen"
   FindlibParent:	bookaml
   FindlibName:		ocsigen
   Path:			src
   Modules:		Bookaml_amazon_ocsigen
-  BuildDepends:		bookaml, threads, lwt, ocsigenserver
+  BuildDepends:		bookaml, batteries, threads, lwt, ocsigenserver
 
 Library "bookaml_ocamlnet"
   FindlibParent:	bookaml
   FindlibName:		ocamlnet
   Path:			src
   Modules:		Bookaml_amazon_ocamlnet
-  BuildDepends:		bookaml, netclient, xml-light
+  BuildDepends:		bookaml, batteries, netclient, xml-light
 
 Document "bookaml"
   Install:		true

@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: ad638ef5d5bac6676c1c912171e753d6)
+# DO NOT EDIT (digest: 4ab509181468c69a4aa1b4c4f1220dbd)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -23,9 +23,9 @@
 # Library bookaml_ocamlnet
 "src/bookaml_ocamlnet.cmxs": use_bookaml_ocamlnet
 <src/*.ml{,i}>: use_bookaml
+<src/*.ml{,i}>: pkg_batteries
 <src/*.ml{,i}>: pkg_netclient
 <src/*.ml{,i}>: pkg_xml-light
-<src/*.ml{,i}>: pkg_extlib
 <src/*.ml{,i}>: pkg_calendar
 <src/*.ml{,i}>: pkg_cryptokit
 <src/*.ml{,i}>: pkg_netstring

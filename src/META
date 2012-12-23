@@ -1,8 +1,8 @@
 # OASIS_START
-# DO NOT EDIT (digest: 16531f3988be81e30e99afc9a820ab06)
+# DO NOT EDIT (digest: 3d20a988ccd01fc3025a2769ccde1dac)
 version = "0.9"
 description = "Retrieving information about published books"
-requires = "extlib calendar cryptokit netstring"
+requires = "batteries calendar cryptokit netstring"
 archive(byte) = "bookaml.cma"
 archive(byte, plugin) = "bookaml.cma"
 archive(native) = "bookaml.cmxa"
@@ -11,7 +11,7 @@ exists_if = "bookaml.cma"
 package "ocsigen" (
  version = "0.9"
  description = "Retrieving information about published books"
- requires = "bookaml threads lwt ocsigenserver"
+ requires = "bookaml batteries threads lwt ocsigenserver"
  archive(byte) = "bookaml_ocsigen.cma"
  archive(byte, plugin) = "bookaml_ocsigen.cma"
  archive(native) = "bookaml_ocsigen.cmxa"
@@ -22,7 +22,7 @@ package "ocsigen" (
 package "ocamlnet" (
  version = "0.9"
  description = "Retrieving information about published books"
- requires = "bookaml netclient xml-light"
+ requires = "bookaml batteries netclient xml-light"
  archive(byte) = "bookaml_ocamlnet.cma"
  archive(byte, plugin) = "bookaml_ocamlnet.cma"
  archive(native) = "bookaml_ocamlnet.cmxa"
