@@ -24,14 +24,14 @@ Library "bookaml_ocsigen"
   FindlibName:		ocsigen
   Path:			src
   Modules:		Bookaml_amazon_ocsigen
-  BuildDepends:		bookaml, batteries, threads, lwt, ocsigenserver
+  BuildDepends:		bookaml, batteries, threads, tyxml, lwt, ocsigenserver
 
 Library "bookaml_ocamlnet"
   FindlibParent:	bookaml
   FindlibName:		ocamlnet
   Path:			src
   Modules:		Bookaml_amazon_ocamlnet
-  BuildDepends:		bookaml, batteries, netclient, xml-light
+  BuildDepends:		bookaml, batteries, netclient, tyxml
 
 Document "bookaml"
   Install:		true

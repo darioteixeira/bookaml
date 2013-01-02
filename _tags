@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 4ab509181468c69a4aa1b4c4f1220dbd)
+# DO NOT EDIT (digest: 908d6646ad93dc1b16b0995aebd2a55a)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -25,7 +25,7 @@
 <src/*.ml{,i}>: use_bookaml
 <src/*.ml{,i}>: pkg_batteries
 <src/*.ml{,i}>: pkg_netclient
-<src/*.ml{,i}>: pkg_xml-light
+<src/*.ml{,i}>: pkg_tyxml
 <src/*.ml{,i}>: pkg_calendar
 <src/*.ml{,i}>: pkg_cryptokit
 <src/*.ml{,i}>: pkg_netstring

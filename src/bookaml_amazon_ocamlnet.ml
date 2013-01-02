@@ -17,11 +17,11 @@ module List = struct include List include BatList end
 
 module Xmlhandler =
 struct
-	open Xml
+	open Simplexmlparser
 
-	type xml = Xml.xml
+	type xml = Simplexmlparser.xml
 
-	let parse s = [Xml.parse_string s]
+	let parse = Simplexmlparser.xmlparser_string
 
 	let xfind_all forest tag =
 		let is_tag = function
