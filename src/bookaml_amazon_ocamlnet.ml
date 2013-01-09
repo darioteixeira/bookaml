@@ -8,7 +8,7 @@
 
 open Bookaml_amazon
 
-module List = struct include List include BatList end
+module List = BatList
 
 
 (********************************************************************************)

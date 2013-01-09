@@ -8,8 +8,8 @@
 
 open CalendarLib
 
-module List = struct include List include BatList end
-module String = struct include String include BatString end
+module List = BatList
+module String = BatString
 
 
 (********************************************************************************)
@@ -139,7 +139,7 @@ let encode_request ~host ~path ~credential pairs =
 	let pathstr = "/" ^ (String.join "/" path)
 	and base_request =
 		pairs |>
-		List.sort ~cmp:(fun (k1, _) (k2, _) -> Pervasives.compare k1 k2) |>	(* Sort items by key *)
+		List.sort (fun (k1, _) (k2, _) -> Pervasives.compare k1 k2) |>		(* Sort items by key *)
 		List.map (fun (k, v) -> (k, Netencoding.Url.encode ~plus:false v)) |>	(* URL-encode values. Note: we do not use '+' for spaces! *)
 		List.map (fun (k, v) -> k ^ "=" ^ v) |>					(* Merge keys and values *)
 		String.join "&"								(* Join all pairs with ampersand *)
