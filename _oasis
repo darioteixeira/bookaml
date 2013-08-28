@@ -35,7 +35,7 @@ Library "bookaml_ocamlnet"
 
 Document "bookaml"
   Install:		true
-  InstallDir:		$htmldir/api
+  InstallDir:		$htmldir
   Title:		API reference for Bookaml
   Type:			ocamlbuild (0.3)
   BuildTools+:		ocamldoc
