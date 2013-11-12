@@ -34,6 +34,7 @@ sig
 		| `DE	(** Germany *)
 		| `ES	(** Spain *)
 		| `FR	(** France *)
+		| `IN	(** India *)
 		| `IT	(** Italy *)
 		| `JP	(** Japan *)
 		| `UK	(** United Kingdom *)

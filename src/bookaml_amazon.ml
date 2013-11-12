@@ -26,7 +26,7 @@ exception No_match of [ `ISBN10 | `ISBN13 ] Bookaml_ISBN.t
 
 module Locale =
 struct
-	type t = [ `CA | `CN | `DE | `ES | `FR | `IT | `JP | `UK | `US ]
+	type t = [ `CA | `CN | `DE | `ES | `FR | `IN | `IT | `JP | `UK | `US ]
 
 	type pg_t = string
 
@@ -36,6 +36,7 @@ struct
 		| "DE" | "de" -> `DE
 		| "ES" | "es" -> `ES
 		| "FR" | "fr" -> `FR
+		| "IN" | "in" -> `IN
 		| "IT" | "it" -> `IT
 		| "JP" | "jp" -> `JP
 		| "UK" | "uk" -> `UK
@@ -48,6 +49,7 @@ struct
 		| `DE -> "DE"
 		| `ES -> "ES"
 		| `FR -> "FR"
+		| `IN -> "IN"
 		| `IT -> "IT"
 		| `JP -> "JP"
 		| `UK -> "UK"
@@ -106,19 +108,19 @@ let maybe f = function
 
 
 let get_endpoint locale =
-	let host_prefix1 = "ecs.amazonaws."
-	and host_prefix2 = "webservices.amazon." in
+	let host_prefix = "webservices.amazon." in
 	let host = match locale with
-		| `CA -> host_prefix1 ^ "ca"
-		| `CN -> host_prefix2 ^ "cn"
-		| `DE -> host_prefix1 ^ "de"
-		| `ES -> host_prefix2 ^ "es"
-		| `FR -> host_prefix1 ^ "fr"
-		| `IT -> host_prefix2 ^ "it"
-		| `JP -> host_prefix1 ^ "jp"
-		| `UK -> host_prefix1 ^ "co.uk"
-		| `US -> host_prefix1 ^ "com"
-	in (host, ["onca"; "xml"])
+		| `CA -> host_prefix ^ "ca"
+		| `CN -> host_prefix ^ "cn"
+		| `DE -> host_prefix ^ "de"
+		| `ES -> host_prefix ^ "es"
+		| `FR -> host_prefix ^ "fr"
+		| `IN -> host_prefix ^ "in"
+		| `IT -> host_prefix ^ "it"
+		| `JP -> host_prefix ^ "jp"
+		| `UK -> host_prefix ^ "co.uk"
+		| `US -> host_prefix ^ "com" in
+	(host, ["onca"; "xml"])
 
 
 let get_common_pairs ~page ~service ~version ~credential =
