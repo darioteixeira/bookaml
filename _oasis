@@ -13,6 +13,14 @@ Description:
   The library is closely tied to the Amazon Product Advertising API, which is
   used internally for retrieving book information.
 
+Flag "ocsigen"
+  Description:		Build auxiliary library "bookaml_ocsigen" (implements an engine using Ocsigenserver's Ocsigen_http_client)
+  Default:		false
+
+Flag "ocamlnet"
+  Description:		Build auxiliary library "bookaml_ocamlnet" (implements an engine using Ocamlnet's Netclient)
+  Default:		false
+
 Library "bookaml"
   FindlibName:		bookaml
   Path:			src
@@ -20,6 +28,8 @@ Library "bookaml"
   BuildDepends:		batteries, calendar, cryptokit, netstring
 
 Library "bookaml_ocsigen"
+  Build$:		flag(ocsigen)
+  Install$:		flag(ocsigen)
   FindlibParent:	bookaml
   FindlibName:		ocsigen
   Path:			src
@@ -27,6 +37,8 @@ Library "bookaml_ocsigen"
   BuildDepends:		bookaml, batteries, threads, tyxml, lwt, ocsigenserver
 
 Library "bookaml_ocamlnet"
+  Build$:		flag(ocamlnet)
+  Install$:		flag(ocamlnet)
   FindlibParent:	bookaml
   FindlibName:		ocamlnet
   Path:			src
@@ -40,5 +52,5 @@ Document "bookaml"
   Type:			ocamlbuild (0.3)
   BuildTools+:		ocamldoc
   XOCamlbuildPath:	src
-  XOCamlbuildLibraries:	bookaml, bookaml.ocsigen, bookaml.ocamlnet
+  XOCamlbuildLibraries:	bookaml
 
