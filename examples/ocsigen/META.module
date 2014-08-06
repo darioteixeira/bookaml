@@ -1,0 +1,5 @@
+directory = "."
+requires = "bookaml.ocsigen"
+archive(plugin,byte) = "module.cma"
+archive(plugin,native) = "module.cmxs"
+
