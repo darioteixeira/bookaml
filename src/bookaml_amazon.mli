@@ -158,8 +158,6 @@ sig
 	*)
 	val find_some_books:
 		?page:int ->
-		?service:string ->
-		?version:string ->
 		credential:credential_t ->
 		criteria_t ->
 		(int * int * Bookaml_book.t list) monad_t
@@ -172,8 +170,6 @@ sig
 		relevant results, then function {!find_some_books} is more appropriate.
 	*)
 	val find_all_books:
-		?service:string ->
-		?version:string ->
 		credential:credential_t ->
 		criteria_t ->
 		Bookaml_book.t list monad_t
@@ -183,8 +179,6 @@ sig
 		returns [Some book] if the book was retrievable and [None] otherwise.
 	*)
 	val book_from_isbn:
-		?service:string ->
-		?version:string ->
 		credential:credential_t ->
 		[< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
 		Bookaml_book.t option monad_t
@@ -194,8 +188,6 @@ sig
 		was not found or if an error occurred during the operation.
 	*)
 	val book_from_isbn_exn:
-		?service:string ->
-		?version:string ->
 		credential:credential_t ->
 		[< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
 		Bookaml_book.t monad_t

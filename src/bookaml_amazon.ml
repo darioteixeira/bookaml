@@ -126,16 +126,15 @@ let get_endpoint locale =
 	(host, ["onca"; "xml"])
 
 
-let get_common_pairs ~page ~service ~version ~credential =
+let get_common_pairs ~page ~credential =
 	[
-	("AssociateTag", credential.associate_tag);
-	("Service", service);
-	("Version", version);
-	("AWSAccessKeyId", credential.access_key);
-	("Timestamp", Printer.Calendar.sprint "%FT%TZ" (Calendar.now ()));	(* Combined date and time in UTC, as per ISO-8601 *)
+	("Service", "AWSECommerceService");
 	("Operation", "ItemSearch");
-	("ItemPage", string_of_int page);
+	("AWSAccessKeyId", credential.access_key);
+	("AssociateTag", credential.associate_tag);
 	("SearchIndex", "Books");
+	("Timestamp", Printer.Calendar.sprint "%FT%TZ" (Calendar.now ()));	(* Combined date and time in UTC, as per ISO-8601 *)
+	("ItemPage", string_of_int page);
 	("ResponseGroup", "ItemAttributes,Images,OfferSummary");
 	]
 
@@ -199,29 +198,21 @@ sig
 
 	val find_some_books:
 		?page:int ->
-		?service:string ->
-		?version:string ->
 		credential:credential_t ->
 		criteria_t ->
 		(int * int * Bookaml_book.t list) monad_t
 
 	val find_all_books:
-		?service:string ->
-		?version:string ->
 		credential:credential_t ->
 		criteria_t ->
 		Bookaml_book.t list monad_t
 
 	val book_from_isbn:
-		?service:string ->
-		?version:string ->
 		credential:credential_t ->
 		[< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
 		Bookaml_book.t option monad_t
 
 	val book_from_isbn_exn:
-		?service:string ->
-		?version:string ->
 		credential:credential_t ->
 		[< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
 		Bookaml_book.t monad_t
@@ -271,8 +262,8 @@ struct
 	(**	{1 Public functions and values}					*)
 	(************************************************************************)
 
-	let find_some_books ?(page = 1) ?(service = "AWSECommerceService") ?(version = "2011-08-01") ~credential criteria =
-		let pairs = criteria @ (get_common_pairs ~page ~service ~version ~credential) in
+	let find_some_books ?(page = 1) ~credential criteria =
+		let pairs = criteria @ (get_common_pairs ~page ~credential) in
 		let (host, path) = get_endpoint credential.locale in
 		let request = encode_request ~host ~path ~credential pairs in
 		Httpgetter.perform_request ~host request >>= fun response ->
@@ -322,8 +313,8 @@ struct
 			exc -> Monad.fail exc
 
 
-	let find_all_books ?service ?version ~credential criteria =
-		let get_page i = find_some_books ~page:i ?service ?version ~credential criteria in
+	let find_all_books ~credential criteria =
+		let get_page i = find_some_books ~page:i ~credential criteria in
 		get_page 1 >>= fun (total_results, total_pages, books) ->
 		if total_pages > 1
 		then
@@ -334,15 +325,15 @@ struct
 			Monad.return books
 
 
-	let book_from_isbn ?service ?version ~credential isbn =
+	let book_from_isbn ~credential isbn =
 		let criteria = make_criteria ~keywords:(Bookaml_ISBN.to_string isbn) () in
-		find_some_books ?service ?version ~credential criteria >>= function
+		find_some_books ~credential criteria >>= function
 			| (_, _, hd :: _) -> Monad.return (Some hd)
 			| (_, _, [])	  -> Monad.return None
 
 
-	let book_from_isbn_exn ?service ?version ~credential isbn =
-		book_from_isbn ?service ?version ~credential isbn >>= function
+	let book_from_isbn_exn ~credential isbn =
+		book_from_isbn ~credential isbn >>= function
 			| Some book -> Monad.return book
 			| None	    -> Monad.fail (No_match (isbn :> [ `ISBN10 | `ISBN13] Bookaml_ISBN.t))
 end
