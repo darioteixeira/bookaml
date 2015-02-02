@@ -120,7 +120,7 @@ let get_endpoint locale =
 		| `FR -> host_prefix ^ "fr"
 		| `IN -> host_prefix ^ "in"
 		| `IT -> host_prefix ^ "it"
-		| `JP -> host_prefix ^ "jp"
+		| `JP -> host_prefix ^ "co.jp"
 		| `UK -> host_prefix ^ "co.uk"
 		| `US -> host_prefix ^ "com" in
 	(host, ["onca"; "xml"])
