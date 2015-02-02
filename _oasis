@@ -1,11 +1,11 @@
-OASISFormat:		0.3
+OASISFormat:		0.4
 Name:			bookaml
-Version:		1.0
+Version:		2.0
 Synopsis:		Library for retrieving information about published books
-Authors:		Dario Teixeira
+Authors:		Dario Teixeira <dario.teixeira@nleyten.com>
 License:		LGPL-2.1 with OCaml linking exception
 LicenseFile:		LICENSE
-Plugins:		META (0.3), DevFiles (0.3)
+Plugins:		META (0.4), DevFiles (0.4)
 BuildTools:		ocamlbuild
 Description:
   Bookaml is a library providing a basic API to gather information about a book
@@ -43,7 +43,7 @@ Library "bookaml_ocamlnet"
   FindlibName:		ocamlnet
   Path:			src
   Modules:		Bookaml_amazon_ocamlnet
-  BuildDepends:		bookaml, batteries, netclient, tyxml
+  BuildDepends:		bookaml, batteries, netclient, tyxml.parser
 
 Document "bookaml"
   Install:		true

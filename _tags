@@ -1,8 +1,9 @@
 # OASIS_START
-# DO NOT EDIT (digest: c0c17546d0b14a8b0bd14594ab523828)
+# DO NOT EDIT (digest: 6df0bf6909e24f5a2432263c73a9a38d)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
+true: annot, bin_annot
 <**/.svn>: -traverse
 <**/.svn>: not_hygienic
 ".bzr": -traverse
@@ -17,17 +18,18 @@
 "src/bookaml.cmxs": use_bookaml
 # Library bookaml_ocsigen
 "src/bookaml_ocsigen.cmxs": use_bookaml_ocsigen
-<src/*.ml{,i}>: pkg_lwt
-<src/*.ml{,i}>: pkg_ocsigenserver
-<src/*.ml{,i}>: pkg_threads
+<src/*.ml{,i,y}>: pkg_lwt
+<src/*.ml{,i,y}>: pkg_ocsigenserver
+<src/*.ml{,i,y}>: pkg_threads
+<src/*.ml{,i,y}>: pkg_tyxml
 # Library bookaml_ocamlnet
 "src/bookaml_ocamlnet.cmxs": use_bookaml_ocamlnet
-<src/*.ml{,i}>: pkg_batteries
-<src/*.ml{,i}>: pkg_calendar
-<src/*.ml{,i}>: pkg_cryptokit
-<src/*.ml{,i}>: pkg_netclient
-<src/*.ml{,i}>: pkg_netstring
-<src/*.ml{,i}>: pkg_tyxml
-<src/*.ml{,i}>: use_bookaml
+<src/*.ml{,i,y}>: pkg_batteries
+<src/*.ml{,i,y}>: pkg_calendar
+<src/*.ml{,i,y}>: pkg_cryptokit
+<src/*.ml{,i,y}>: pkg_netclient
+<src/*.ml{,i,y}>: pkg_netstring
+<src/*.ml{,i,y}>: pkg_tyxml.parser
+<src/*.ml{,i,y}>: use_bookaml
 # OASIS_STOP
 <src/bookaml_amazon_ocsigen.ml>: pkg_lwt.syntax, syntax_camlp4o
