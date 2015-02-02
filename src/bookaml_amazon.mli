@@ -29,7 +29,8 @@ exception No_match of [ `ISBN10 | `ISBN13 ] Bookaml_ISBN.t
 module Locale:
 sig
 	type t =
-		[ `CA	(** Canada *)
+		[ `BR	(** Brazil *)
+		| `CA	(** Canada *)
 		| `CN	(** China *)
 		| `DE	(** Germany *)
 		| `ES	(** Spain *)

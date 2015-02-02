@@ -26,11 +26,12 @@ exception No_match of [ `ISBN10 | `ISBN13 ] Bookaml_ISBN.t
 
 module Locale =
 struct
-	type t = [ `CA | `CN | `DE | `ES | `FR | `IN | `IT | `JP | `UK | `US ]
+	type t = [ `BR | `CA | `CN | `DE | `ES | `FR | `IN | `IT | `JP | `UK | `US ]
 
 	type pg_t = string
 
 	let of_string = function
+		| "BR" | "br" -> `BR
 		| "CA" | "ca" -> `CA
 		| "CN" | "cn" -> `CN
 		| "DE" | "de" -> `DE
@@ -44,6 +45,7 @@ struct
 		| x 	      -> invalid_arg ("Locale.of_string: " ^ x)
 
 	let to_string = function
+		| `BR -> "BR"
 		| `CA -> "CA"
 		| `CN -> "CN"
 		| `DE -> "DE"
@@ -110,6 +112,7 @@ let maybe f = function
 let get_endpoint locale =
 	let host_prefix = "webservices.amazon." in
 	let host = match locale with
+		| `BR -> host_prefix ^ "com.br"
 		| `CA -> host_prefix ^ "ca"
 		| `CN -> host_prefix ^ "cn"
 		| `DE -> host_prefix ^ "de"
