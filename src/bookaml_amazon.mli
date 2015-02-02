@@ -141,7 +141,7 @@ sig
 		for the sake of flexibility we do not actually mandate that [Lwt] be used,
 		and hence why this abstract type ['a monad_t] exists.  It is in fact possible
 		for the implementation to use no monad-based system at all, in which case the
-		dummy monad may be declared: [Bookaml_amazon.ENGINE with type 'a monad_t = 'a].
+		identity monad may be declared: [Bookaml_amazon.ENGINE with type 'a monad_t = 'a].
 	*)
 	type 'a monad_t
 
