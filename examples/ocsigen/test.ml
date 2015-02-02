@@ -8,7 +8,7 @@ open Bookaml_book
 
 (************************************************************************)
 
-let locale = `US
+let locale = `US		(* Set your locale *)
 let associate_tag = "***"	(* Replace asterisks with your actual associate tag *)
 let access_key = "***"		(* Replace asterisks with your actual access key *)
 let secret_key = "***"		(* Replace asterisks with your actual secret key *)
@@ -41,7 +41,10 @@ let main_service =
 (************************************************************************)
 
 let output_book book =
-	let output_price = function
+	let mprint = function
+		| Some x -> x
+		| None	 -> "(none)"
+	and output_price = function
 		| Some price -> Printf.sprintf "(%d, %s, %s)" price.amount price.currency price.formatted
 		| None	     -> "(none)"
 	and output_image = function
@@ -49,9 +52,9 @@ let output_book book =
 		| None	     -> p [pcdata "(none)"]
 	in div	[
 		p [pcdata "Title: "; pcdata book.title];
-		p [pcdata "Author: "; pcdata book.author];
-		p [pcdata "Publisher: "; pcdata book.publisher];
-		p [pcdata "Publication date: "; pcdata (match book.pubdate with Some x -> x | None -> "(none)")];
+		p [pcdata "Author: "; pcdata (mprint book.author)];
+		p [pcdata "Publisher: "; pcdata (mprint book.publisher)];
+		p [pcdata "Publication date: "; pcdata (mprint book.pubdate)];
 		p [pcdata "Page: "; (match book.page with Some page -> Raw.a ~a:[a_href (Raw.uri_of_string page)] [pcdata "Page"] | None -> pcdata "(none)")];
 		p [pcdata ("List price: " ^ (output_price book.list_price))];
 		p [pcdata ("New price: " ^ (output_price book.price_new))];
