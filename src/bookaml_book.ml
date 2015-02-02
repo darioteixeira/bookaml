@@ -1,6 +1,6 @@
 (********************************************************************************)
 (*	Bookaml_book.ml
-	Copyright (c) 2010-2014 Dario Teixeira (dario.teixeira@yahoo.com)
+	Copyright (c) 2010-2015 Dario Teixeira <dario.teixeira@nleyten.com>
 	This software is distributed under the terms of the GNU GNU LGPL 2.1
 	with OCaml linking exception.  See LICENSE file for full license text.
 *)
