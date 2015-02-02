@@ -106,8 +106,8 @@ let main_handler () () =
 		(head (title (pcdata "Book")) [])
 		(body
 			[
-			p [a isbn_service [pcdata "Book with ISBN 0451529065"] "0451529065"];
-			p [a isbn_service [pcdata "Book with ISBN 978-0451529060"] "978-0451529060"];
+			p [a isbn_service [pcdata "Book with ISBN 144932391X"] "144932391X"];
+			p [a isbn_service [pcdata "Book with ISBN 978-1449323912"] "978-1449323912"];
 			hr ();
 			get_form title_service title_form;
 			hr ();
