@@ -1,4 +1,12 @@
 -------------------------
+(2015-02-02) version 2.0:
+
+  * Update to latest version of Amazon Product Advertising API.
+  * Add Brazil locale and fix Japan endpoint.
+  * Make author and publisher fields optional.
+
+
+-------------------------
 (2014-08-06) version 1.0:
 
   * First public release.
