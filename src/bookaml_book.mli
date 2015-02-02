@@ -34,8 +34,8 @@ type t =
 	isbn10: [ `ISBN10 ] Bookaml_ISBN.t option;
 	isbn13: [ `ISBN13 ] Bookaml_ISBN.t;
 	title: string;
-	author: string;
-	publisher: string;
+	author: string option;
+	publisher: string option;
 	pubdate: string option;
 	page: string option;
 	list_price: price_t option;

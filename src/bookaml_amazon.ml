@@ -294,8 +294,8 @@ struct
 					isbn10 = Bookaml_ISBN.to_10 isbn;
 					isbn13 = Bookaml_ISBN.to_13 isbn;
 					title = item_attributes <!> "Title";
-					author = item_attributes <!> "Author";
-					publisher = item_attributes <!> "Publisher";
+					author = item_attributes <!?> "Author";
+					publisher = item_attributes <!?> "Publisher";
 					pubdate = item_attributes <!?> "PublicationDate";
 					page = item <!?> "DetailPageURL";
 					list_price = item_attributes <|?> "ListPrice" |> maybe make_price;
