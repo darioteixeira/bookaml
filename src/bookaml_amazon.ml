@@ -251,7 +251,8 @@ struct
 		try Some (xfind_one xml tag)
 		with Not_found -> None
 
-	let (<!>) xml tag = xfind_one xml tag |> xget
+	let (<!>) xml tag =
+		xfind_one xml tag |> xget
 
 	let (<!?>) xml tag =
 		try Some (xfind_one xml tag |> xget)
