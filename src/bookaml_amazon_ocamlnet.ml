@@ -56,8 +56,8 @@ struct
 
 	let perform_request ~host request =
 		let dst = "http://" ^ host ^ request in
-		let pipeline = new Http_client.pipeline in
-		let request = new Http_client.get dst in
+		let pipeline = new Nethttp_client.pipeline in
+		let request = new Nethttp_client.get dst in
 		let () = pipeline#add request in
 		let () = pipeline#run () in
 		request#response_body#value
