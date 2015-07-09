@@ -1,0 +1,11 @@
+S src/**
+B _build/**
+PKG batteries
+PKG calendar
+PKG cryptokit
+PKG lwt
+PKG netclient
+PKG netstring
+PKG ocsigenserver
+PKG tyxml
+PKG tyxml.parser
