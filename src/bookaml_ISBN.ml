@@ -6,8 +6,6 @@
 *)
 (********************************************************************************)
 
-module String = BatString
-
 
 (********************************************************************************)
 (** {1 Exceptions}                                                              *)
@@ -22,20 +20,18 @@ exception Bad_ISBN_character of char
 (** {1 Type definitions}                                                        *)
 (********************************************************************************)
 
-type +'a t =
-    | ISBN10 of string
-    | ISBN13 of string
-    constraint 'a = [< `ISBN10 | `ISBN13 ]
-
-
-type pg_t = string
+type t =
+    {
+    isbn10: string option;
+    isbn13: string;
+    }
 
 
 (********************************************************************************)
 (** {1 Private functions and values}                                            *)
 (********************************************************************************)
 
-let value =
+let value_of_char =
     let base = int_of_char '0' in
     function
         | '0' .. '9' as x -> (int_of_char x) - base
@@ -43,127 +39,124 @@ let value =
         | x               -> raise (Bad_ISBN_character x)
 
 
-let digit = 
+let char_of_value = 
     let base = int_of_char '0' in
     function
         | 10                      -> 'X'
         | x when x >= 0 && x < 10 -> char_of_int (x + base)
-        | x                       -> invalid_arg ("Bookaml_ISBN.digit: " ^ (string_of_int x))
+        | x                       -> assert false
 
 
-let sum10 digits =
-    List.fold_left (+) 0 (List.mapi (fun i x -> (10 - i) * (value x)) digits)
+let sum ~f ~limit digits =
+    let rec aux accum i = function
+        | hd :: tl when i < limit -> aux (accum + f i hd) (i + 1) tl
+        | _                       -> accum in
+    aux 0 0 digits
 
 
-let sum13 digits =
-    List.fold_left (+) 0 (List.mapi (fun i x -> (if i mod 2 = 1 then 3 else 1) * (value x)) digits)
+let sum10 ~limit digits =
+    let f i x = (10 - i) * value_of_char x in
+    sum ~f ~limit digits
+
+
+let sum13 ~limit digits =
+    let f i x = (if i mod 2 = 1 then 3 else 1) * value_of_char x in
+    sum ~f ~limit digits
 
 
 let check10 digits =
-    (sum10 digits) mod 11 = 0
+    (sum10 ~limit:10 digits) mod 11 = 0
 
 
 let check13 digits =
-    (sum13 digits) mod 10 = 0
+    (sum13 ~limit:13 digits) mod 10 = 0
 
 
-let compute10 digits =
-    digit (11 - (sum10 digits mod 11))
-        
+let explode_and_filter str =
+    let rec loop acc i =
+        if i < 0
+        then
+            acc
+        else
+            let chr = str.[i] in
+            let acc = if chr = '-' then acc else chr :: acc in
+            loop acc (i - 1) in
+    loop [] (String.length str - 1)
 
-let compute13 digits =
-    digit ((10 - (sum13 digits mod 10)) mod 10)
-        
 
-let is_valid_aux f str =
-    try ignore (f str); true
-    with _ -> false
+let implode ?length ?check_digit digits =
+    let length = match length with Some l -> l | None -> List.length digits in
+    let buf = Bytes.make length '\x00' in
+    let rec loop i = function
+        | hd :: tl when i < length -> Bytes.set buf i hd; loop (i + 1) tl
+        | _                        -> () in
+    loop 0 digits;
+    begin match check_digit with
+        | Some x -> Bytes.set buf (length - 1) x
+        | None   -> ()
+    end;
+    Bytes.unsafe_to_string buf
+       
+
+let isbn10_of_isbn13 = function
+    | '9' :: '7' :: '8' :: digits ->
+        let check_digit = char_of_value ((11 - (sum10 ~limit:9 digits mod 11)) mod 11) in
+        Some (implode ~length:10 ~check_digit digits)
+    | _ ->
+        None
+
+
+let isbn13_of_isbn10 digits =
+    let digits = '9' :: '7' :: '8' :: digits in
+    let check_digit = char_of_value ((10 - (sum13 ~limit:12 digits mod 10)) mod 10) in
+    implode ~length:13 ~check_digit digits
 
 
 (********************************************************************************)
 (** {1 Public functions and values}                                             *)
 (********************************************************************************)
 
+let of_string_exn str =
+    let digits = explode_and_filter str in
+    let str' = implode digits in
+    match String.length str' with
+        | 10 ->
+            if check10 digits
+            then {isbn10 = Some str'; isbn13 = isbn13_of_isbn10 digits}
+            else raise (Bad_ISBN_checksum str)
+        | 13 ->
+            if check13 digits
+            then {isbn10 = isbn10_of_isbn13 digits; isbn13 = str'}
+            else raise (Bad_ISBN_checksum str)
+        | _ ->
+            raise (Bad_ISBN_length str)
+
+
 let of_string str =
-    let digits = List.filter ((<>) '-') (String.explode str) in
-    let (checker, cons) = match List.length digits with
-        | 10 -> (check10, fun x -> ISBN10 x)
-        | 13 -> (check13, fun x -> ISBN13 x)
-        | _  -> raise (Bad_ISBN_length str) in
-    if checker digits
-    then cons (String.implode digits)
-    else raise (Bad_ISBN_checksum str)
+    try Some (of_string_exn str)
+    with _ -> None
 
 
-let of_string10 str = match of_string str with
-    | (ISBN10 _) as isbn -> isbn
-    | (ISBN13 _)         -> raise (Bad_ISBN_length str)
+let to_string10 isbn =
+    isbn.isbn10
 
 
-let of_string13 str = match of_string str with
-    | (ISBN13 _) as isbn -> isbn
-    | (ISBN10 _)         -> raise (Bad_ISBN_length str)
+let to_string13 isbn =
+    isbn.isbn13
 
 
-let to_string = function
-    | ISBN10 x -> x
-    | ISBN13 x -> x
+let is_valid str =
+    let digits = explode_and_filter str in
+    let len = List.length digits in
+    (len = 10 && check10 digits) || (len = 13 && check13 digits)
 
 
-let to_10 = function
-    | ISBN10 _ as x ->
-        Some x
-    | ISBN13 x when String.starts_with x "978" ->
-        let digits = String.explode (String.slice ~first:3 ~last:(-1) x) in
-        let check_digit = compute10 digits in
-        Some (ISBN10 (String.implode (digits @ [check_digit])))
-    | ISBN13 _ ->
-        None
+let is_valid10 str =
+    let digits = explode_and_filter str in
+    List.length digits = 10 && check10 digits
 
 
-let to_13 = function
-    | ISBN10 x ->
-        let digits = String.explode ("978" ^ String.slice ~last:(-1) x) in
-        let check_digit = compute13 digits in
-        ISBN13 (String.implode (digits @ [check_digit]))
-    | ISBN13 _ as x ->
-        x
-
-
-let of_pg xstr = match String.length xstr with
-    | 10 -> ISBN10 xstr
-    | 13 -> ISBN13 xstr
-    | _  -> invalid_arg ("Bookaml_ISBN.of_pg: " ^ xstr)
-
-
-let of_pg10 xstr = match String.length xstr with
-    | 10 -> ISBN10 xstr
-    | _  -> invalid_arg ("Bookaml_ISBN.of_pg10: " ^ xstr)
-
-
-let of_pg13 xstr = match String.length xstr with
-    | 13 -> ISBN13 xstr
-    | _  -> invalid_arg ("Bookaml_ISBN.of_pg13: " ^ xstr)
-
-
-let to_pg = to_string
-
-
-let is_valid = is_valid_aux of_string
-
-
-let is_valid10 = is_valid_aux of_string10
-
-
-let is_valid13 = is_valid_aux of_string13
-
-
-let is_10 = function
-    | ISBN10 _ -> true
-    | ISBN13 _ -> false
-
-
-let is_13 = function
-    | ISBN10 _ -> false
-    | ISBN13 _ -> true
+let is_valid13 str =
+    let digits = explode_and_filter str in
+    List.length digits = 13 && check13 digits
 

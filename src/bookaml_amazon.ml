@@ -17,7 +17,7 @@ module String = BatString
 (********************************************************************************)
 
 exception No_response
-exception No_match of [ `ISBN10 | `ISBN13 ] Bookaml_ISBN.t
+exception No_match of Bookaml_ISBN.t
 
 
 (********************************************************************************)
@@ -209,12 +209,12 @@ sig
 
     val book_from_isbn:
         credential:credential_t ->
-        [< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
+        Bookaml_ISBN.t ->
         Bookaml_book.t option monad_t
 
     val book_from_isbn_exn:
         credential:credential_t ->
-        [< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
+        Bookaml_ISBN.t ->
         Bookaml_book.t monad_t
 end
 
@@ -289,11 +289,9 @@ struct
                     }
                 and item_attributes = item <|> "ItemAttributes"
                 and offer_summary = item <|> "OfferSummary" in
-                let isbn = item_attributes <!> "ISBN" |> Bookaml_ISBN.of_string in
                 try Some
                     {
-                    isbn10 = Bookaml_ISBN.to_10 isbn;
-                    isbn13 = Bookaml_ISBN.to_13 isbn;
+                    isbn = item_attributes <!> "ISBN" |> Bookaml_ISBN.of_string_exn;
                     title = item_attributes <!> "Title";
                     author = item_attributes <!?> "Author";
                     publisher = item_attributes <!?> "Publisher";
@@ -327,7 +325,7 @@ struct
 
 
     let book_from_isbn ~credential isbn =
-        let criteria = make_criteria ~keywords:(Bookaml_ISBN.to_string isbn) () in
+        let criteria = make_criteria ~keywords:(Bookaml_ISBN.to_string13 isbn) () in
         find_some_books ~credential criteria >>= function
             | (_, _, hd :: _) -> Monad.return (Some hd)
             | (_, _, [])      -> Monad.return None
@@ -336,6 +334,6 @@ struct
     let book_from_isbn_exn ~credential isbn =
         book_from_isbn ~credential isbn >>= function
             | Some book -> Monad.return book
-            | None      -> Monad.fail (No_match (isbn :> [ `ISBN10 | `ISBN13] Bookaml_ISBN.t))
+            | None      -> Monad.fail (No_match isbn)
 end
 

@@ -17,7 +17,7 @@
 (********************************************************************************)
 
 exception No_response
-exception No_match of [ `ISBN10 | `ISBN13 ] Bookaml_ISBN.t
+exception No_match of Bookaml_ISBN.t
 
 
 (********************************************************************************)
@@ -180,7 +180,7 @@ sig
     *)
     val book_from_isbn:
         credential:credential_t ->
-        [< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
+        Bookaml_ISBN.t ->
         Bookaml_book.t option monad_t
 
 
@@ -189,7 +189,7 @@ sig
     *)
     val book_from_isbn_exn:
         credential:credential_t ->
-        [< `ISBN10 | `ISBN13 ] Bookaml_ISBN.t ->
+        Bookaml_ISBN.t ->
         Bookaml_book.t monad_t
 end
 
