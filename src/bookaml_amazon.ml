@@ -143,10 +143,10 @@ let encode_request ~host ~path ~credential pairs =
     let pathstr = "/" ^ (String.join "/" path)
     and base_request =
         pairs |>
-        List.sort (fun (k1, _) (k2, _) -> String.compare k1 k2) |>      (* Sort items by key *)
+        List.sort (fun (k1, _) (k2, _) -> String.compare k1 k2) |>              (* Sort items by key *)
         List.map (fun (k, v) -> (k, Netencoding.Url.encode ~plus:false v)) |>   (* URL-encode values. Note: we do not use '+' for spaces! *)
-        List.map (fun (k, v) -> k ^ "=" ^ v) |>                 (* Merge keys and values *)
-        String.join "&"                             (* Join all pairs with ampersand *)
+        List.map (fun (k, v) -> k ^ "=" ^ v) |>                                 (* Merge keys and values *)
+        String.join "&"                                                         (* Join all pairs with ampersand *)
     and base64enc = Cryptokit.Base64.encode_multiline ()
     and hmac = Cryptokit.MAC.hmac_sha256 credential.secret_key in
     let payload = "GET\n" ^ host ^ "\n" ^ pathstr ^ "\n" ^ base_request in
