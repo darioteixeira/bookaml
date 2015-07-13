@@ -1,6 +1,6 @@
 # OASIS_START
-# DO NOT EDIT (digest: 789520f17fb8d258482bde810be49a4a)
-version = "2.1"
+# DO NOT EDIT (digest: ba52e2ef8c81bf5aec9359b88e01f25d)
+version = "3.0"
 description = "Library for retrieving information about published books"
 requires = "batteries calendar cryptokit netstring"
 archive(byte) = "bookaml.cma"
@@ -9,7 +9,7 @@ archive(native) = "bookaml.cmxa"
 archive(native, plugin) = "bookaml.cmxs"
 exists_if = "bookaml.cma"
 package "ocsigen" (
- version = "2.1"
+ version = "3.0"
  description = "Library for retrieving information about published books"
  requires = "bookaml batteries threads tyxml lwt ocsigenserver"
  archive(byte) = "bookaml_ocsigen.cma"
@@ -20,7 +20,7 @@ package "ocsigen" (
 )
 
 package "ocamlnet" (
- version = "2.1"
+ version = "3.0"
  description = "Library for retrieving information about published books"
  requires = "bookaml batteries netclient tyxml.parser"
  archive(byte) = "bookaml_ocamlnet.cma"

@@ -1,6 +1,6 @@
 OASISFormat:    0.4
 Name:           bookaml
-Version:        2.1
+Version:        3.0
 Synopsis:       Library for retrieving information about published books
 Authors:        Dario Teixeira <dario.teixeira@nleyten.com>
 License:        LGPL-2.1 with OCaml linking exception
