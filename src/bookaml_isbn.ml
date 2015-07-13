@@ -1,5 +1,5 @@
 (********************************************************************************)
-(*  Bookaml_ISBN.ml
+(*  Bookaml_isbn.ml
     Copyright (c) 2010-2015 Dario Teixeira <dario.teixeira@nleyten.com>
     This software is distributed under the terms of the GNU GNU LGPL 2.1
     with OCaml linking exception.  See LICENSE file for full license text.

@@ -17,7 +17,7 @@ module String = BatString
 (********************************************************************************)
 
 exception No_response
-exception No_match of Bookaml_ISBN.t
+exception No_match of Bookaml_isbn.t
 
 
 (********************************************************************************)
@@ -209,12 +209,12 @@ sig
 
     val book_from_isbn:
         credential:credential_t ->
-        Bookaml_ISBN.t ->
+        Bookaml_isbn.t ->
         Bookaml_book.t option monad_t
 
     val book_from_isbn_exn:
         credential:credential_t ->
-        Bookaml_ISBN.t ->
+        Bookaml_isbn.t ->
         Bookaml_book.t monad_t
 end
 
@@ -291,7 +291,7 @@ struct
                 and offer_summary = item <|> "OfferSummary" in
                 try Some
                     {
-                    isbn = item_attributes <!> "ISBN" |> Bookaml_ISBN.of_string_exn;
+                    isbn = item_attributes <!> "ISBN" |> Bookaml_isbn.of_string_exn;
                     title = item_attributes <!> "Title";
                     author = item_attributes <!?> "Author";
                     publisher = item_attributes <!?> "Publisher";
@@ -325,7 +325,7 @@ struct
 
 
     let book_from_isbn ~credential isbn =
-        let criteria = make_criteria ~keywords:(Bookaml_ISBN.to_string13 isbn) () in
+        let criteria = make_criteria ~keywords:(Bookaml_isbn.to_string13 isbn) () in
         find_some_books ~credential criteria >>= function
             | (_, _, hd :: _) -> Monad.return (Some hd)
             | (_, _, [])      -> Monad.return None

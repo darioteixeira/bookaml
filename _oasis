@@ -24,7 +24,7 @@ Flag "ocamlnet"
 Library "bookaml"
   FindlibName:          bookaml
   Path:                 src
-  Modules:              Bookaml_ISBN, Bookaml_book, Bookaml_amazon
+  Modules:              Bookaml_isbn, Bookaml_book, Bookaml_amazon
   BuildDepends:         batteries, calendar, cryptokit, netstring
 
 Library "bookaml_ocsigen"
