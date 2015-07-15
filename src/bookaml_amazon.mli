@@ -40,7 +40,7 @@ sig
         | `JP   (** Japan *)
         | `UK   (** United Kingdom *)
         | `US   (** United States *)
-        ]
+        ] with sexp
 
     type pg_t = string
 
@@ -64,13 +64,13 @@ type credential_t =
     associate_tag: string;
     access_key: string;
     secret_key: string;
-    }
+    } with sexp
 
 
 (** Search criteria expected by some {!ENGINE} functions.  The search criteria
     must be created beforehand by function {!make_criteria}.
 *)
-type criteria_t
+type criteria_t with sexp
 
 
 (********************************************************************************)

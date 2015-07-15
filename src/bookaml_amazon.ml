@@ -6,6 +6,7 @@
 *)
 (********************************************************************************)
 
+open Sexplib.Std
 open CalendarLib
 
 module List = BatList
@@ -26,7 +27,7 @@ exception No_match of Bookaml_isbn.t
 
 module Locale =
 struct
-    type t = [ `BR | `CA | `CN | `DE | `ES | `FR | `IN | `IT | `JP | `UK | `US ]
+    type t = [ `BR | `CA | `CN | `DE | `ES | `FR | `IN | `IT | `JP | `UK | `US ] with sexp
 
     type pg_t = string
 
@@ -73,10 +74,10 @@ type credential_t =
     associate_tag: string;
     access_key: string;
     secret_key: string;
-    }
+    } with sexp
 
 
-type criteria_t = (string * string) list
+type criteria_t = (string * string) list with sexp
 
 
 (********************************************************************************)
@@ -291,7 +292,7 @@ struct
                 and offer_summary = item <|> "OfferSummary" in
                 try Some
                     {
-                    isbn = item_attributes <!> "ISBN" |> Bookaml_isbn.of_string_exn;
+                    isbn = item_attributes <!> "ISBN" |> Bookaml_isbn.of_string;
                     title = item_attributes <!> "Title";
                     author = item_attributes <!?> "Author";
                     publisher = item_attributes <!?> "Publisher";

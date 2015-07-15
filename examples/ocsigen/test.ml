@@ -78,7 +78,7 @@ let title_handler title () =
 
 
 let isbn_handler isbn () =
-    Bookaml_amazon_ocsigen.book_from_isbn_exn ~credential (Bookaml_isbn.of_string_exn isbn) >>= fun book ->
+    Bookaml_amazon_ocsigen.book_from_isbn_exn ~credential (Bookaml_isbn.of_string isbn) >>= fun book ->
     Lwt.return
         (html
         (head (title (pcdata "Book")) [])

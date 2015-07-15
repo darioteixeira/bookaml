@@ -6,6 +6,8 @@
 *)
 (********************************************************************************)
 
+open Sexplib.Std
+
 
 (********************************************************************************)
 (** {1 Exceptions}                                                              *)
@@ -20,11 +22,13 @@ exception Bad_ISBN_character of char
 (** {1 Type definitions}                                                        *)
 (********************************************************************************)
 
+type from10_t = {isbn10: string; isbn13: string} with sexp
+type from13_t = {isbn10: string option; isbn13: string} with sexp
+
 type t =
-    {
-    isbn10: string option;
-    isbn13: string;
-    }
+    | From10 of from10_t
+    | From13 of from13_t
+    with sexp
 
 
 (********************************************************************************)
@@ -116,47 +120,58 @@ let isbn13_of_isbn10 digits =
 (** {1 Public functions and values}                                             *)
 (********************************************************************************)
 
-let of_string_exn str =
+let of_string str =
     let digits = explode_and_filter str in
     let str' = implode digits in
     match String.length str' with
         | 10 ->
             if check10 digits
-            then {isbn10 = Some str'; isbn13 = isbn13_of_isbn10 digits}
+            then From10 {isbn10 = str'; isbn13 = isbn13_of_isbn10 digits}
             else raise (Bad_ISBN_checksum str)
         | 13 ->
             if check13 digits
-            then {isbn10 = isbn10_of_isbn13 digits; isbn13 = str'}
+            then From13 {isbn10 = isbn10_of_isbn13 digits; isbn13 = str'}
             else raise (Bad_ISBN_checksum str)
         | _ ->
             raise (Bad_ISBN_length str)
 
 
-let of_string str =
-    try Some (of_string_exn str)
-    with _ -> None
+let to_string = function
+    | From10 x -> x.isbn10
+    | From13 x -> x.isbn13
 
 
-let to_string10 isbn =
-    isbn.isbn10
+let to_string10 = function
+    | From10 x -> Some x.isbn10
+    | From13 x -> x.isbn10
 
 
-let to_string13 isbn =
-    isbn.isbn13
+let to_string13 = function
+    | From10 x -> x.isbn13
+    | From13 x -> x.isbn13
 
 
 let is_valid str =
-    let digits = explode_and_filter str in
-    let len = List.length digits in
-    (len = 10 && check10 digits) || (len = 13 && check13 digits)
+    try
+        let digits = explode_and_filter str in
+        let len = List.length digits in
+        (len = 10 && check10 digits) || (len = 13 && check13 digits)
+    with _ ->
+        false
 
 
 let is_valid10 str =
-    let digits = explode_and_filter str in
-    List.length digits = 10 && check10 digits
+    try
+        let digits = explode_and_filter str in
+        List.length digits = 10 && check10 digits
+    with _ ->
+        false
 
 
 let is_valid13 str =
-    let digits = explode_and_filter str in
-    List.length digits = 13 && check13 digits
+    try
+        let digits = explode_and_filter str in
+        List.length digits = 13 && check13 digits
+    with _ ->
+        false
 
