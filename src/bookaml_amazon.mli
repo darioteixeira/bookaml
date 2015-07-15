@@ -42,13 +42,8 @@ sig
         | `US   (** United States *)
         ] with sexp
 
-    type pg_t = string
-
     val of_string: string -> t
     val to_string: t -> string
-
-    val of_pg: pg_t -> t
-    val to_pg: t -> pg_t
 end
 
 

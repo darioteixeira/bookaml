@@ -29,8 +29,6 @@ module Locale =
 struct
     type t = [ `BR | `CA | `CN | `DE | `ES | `FR | `IN | `IT | `JP | `UK | `US ] with sexp
 
-    type pg_t = string
-
     let of_string = function
         | "BR" | "br" -> `BR
         | "CA" | "ca" -> `CA
@@ -57,10 +55,6 @@ struct
         | `JP -> "JP"
         | `UK -> "UK"
         | `US -> "US"
-
-    let of_pg = of_string
-
-    let to_pg = to_string
 end
 
 
