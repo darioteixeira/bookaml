@@ -13,9 +13,9 @@ open Sexplib.Std
 (** {1 Exceptions}                                                              *)
 (********************************************************************************)
 
-exception Bad_ISBN_length of string
-exception Bad_ISBN_checksum of string
-exception Bad_ISBN_character of char
+exception Bad_isbn_length of string
+exception Bad_isbn_checksum of string
+exception Bad_isbn_character of char
 
 
 (********************************************************************************)
@@ -40,7 +40,7 @@ let value_of_char =
     function
         | '0' .. '9' as x -> (int_of_char x) - base
         | 'X' | 'x'       -> 10
-        | x               -> raise (Bad_ISBN_character x)
+        | x               -> raise (Bad_isbn_character x)
 
 
 let char_of_value = 
@@ -127,13 +127,13 @@ let of_string str =
         | 10 ->
             if check10 digits
             then From10 {isbn10 = str'; isbn13 = isbn13_of_isbn10 digits}
-            else raise (Bad_ISBN_checksum str)
+            else raise (Bad_isbn_checksum str)
         | 13 ->
             if check13 digits
             then From13 {isbn10 = isbn10_of_isbn13 digits; isbn13 = str'}
-            else raise (Bad_ISBN_checksum str)
+            else raise (Bad_isbn_checksum str)
         | _ ->
-            raise (Bad_ISBN_length str)
+            raise (Bad_isbn_length str)
 
 
 let to_string = function

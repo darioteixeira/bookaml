@@ -14,9 +14,9 @@
 (** {1 Exceptions}                                                              *)
 (********************************************************************************)
 
-exception Bad_ISBN_length of string
-exception Bad_ISBN_checksum of string
-exception Bad_ISBN_character of char
+exception Bad_isbn_length of string
+exception Bad_isbn_checksum of string
+exception Bad_isbn_character of char
 
 
 (********************************************************************************)
