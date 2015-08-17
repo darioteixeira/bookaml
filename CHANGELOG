@@ -1,4 +1,11 @@
 -------------------------
+(2015-08-17) version 3.0:
+
+  * New simpler API for Bookaml_isbn.
+  * Renaming modules and exceptions: 'ISBN' -> 'isbn'.
+
+
+-------------------------
 (2015-02-26) version 2.1:
 
   * Port to OCamlnet 4.
