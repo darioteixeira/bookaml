@@ -9,25 +9,26 @@ dev-repo: "https://github.com/darioteixeira/bookaml.git"
 license: "LGPL-2.1 with OCaml linking exception"
 available: [ocaml-version >= "4.01.0"]
 build: [
-    ["./configure" "--prefix" prefix "--docdir" "%{doc}%/bookaml" "--%{ocsigenserver:enable}%-ocsigen" "--%{ocamlnet:enable}%-ocamlnet"]
-    [make]
-    [make "doc"]
+  ["./configure" "--prefix" prefix "--docdir" "%{doc}%/bookaml" "--%{ocsigenserver:enable}%-ocsigen" "--%{ocamlnet:enable}%-ocamlnet"]
+  [make]
+  [make "doc"]
 ]
 install: [[make "install"]]
 remove: [["ocamlfind" "remove" "bookaml"]]
 depends: [
-    "ocamlfind"
-    "batteries"
-    "calendar"
-    "cryptokit"
-    "ocamlnet" { >= "4" }
-    "tyxml"
-    "camlp4"
-    "sexplib"
-    "type_conv"
+  "ocamlfind"
+  "batteries"
+  "calendar"
+  "cryptokit"
+  "ocamlnet" { >= "4" }
+  "tyxml"
+  "camlp4"
+  "sexplib"
+  "type_conv"
+  "ocamlbuild" {build}
 ]
 depopts: [
-    "lwt"
-    "ocsigenserver"
+  "lwt"
+  "ocsigenserver"
 ]
 
