@@ -25,7 +25,7 @@ Library "bookaml"
   FindlibName:          bookaml
   Path:                 src
   Modules:              Bookaml_isbn, Bookaml_book, Bookaml_amazon
-  BuildDepends:         batteries, sexplib, calendar, cryptokit, netstring
+  BuildDepends:         batteries, calendar, cryptokit, netstring, sexplib
 
 Library "bookaml_ocsigen"
   Build$:               flag(ocsigen)
@@ -34,7 +34,7 @@ Library "bookaml_ocsigen"
   FindlibName:          ocsigen
   Path:                 src
   Modules:              Bookaml_amazon_ocsigen
-  BuildDepends:         bookaml, batteries, threads, tyxml, lwt, ocsigenserver
+  BuildDepends:         batteries, bookaml, lwt, ocsigenserver, threads, tyxml
 
 Library "bookaml_ocamlnet"
   Build$:               flag(ocamlnet)
@@ -43,7 +43,7 @@ Library "bookaml_ocamlnet"
   FindlibName:          ocamlnet
   Path:                 src
   Modules:              Bookaml_amazon_ocamlnet
-  BuildDepends:         bookaml, batteries, netclient, tyxml.parser
+  BuildDepends:         batteries, bookaml, netclient, tyxml.parser
 
 Document "bookaml"
   Install:              true
