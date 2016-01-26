@@ -1,15 +1,19 @@
 -------------------------
+(2016-01-26) version 3.1:
+
+  * Use PPX-based syntax extensions (Sexplib and Lwt)
+    instead of the old Camlp4-based ones.
+
+-------------------------
 (2015-08-17) version 3.0:
 
   * New simpler API for Bookaml_isbn.
   * Renaming modules and exceptions: 'ISBN' -> 'isbn'.
 
-
 -------------------------
 (2015-02-26) version 2.1:
 
   * Port to OCamlnet 4.
-
 
 -------------------------
 (2015-02-02) version 2.0:
@@ -17,7 +21,6 @@
   * Update to latest version of Amazon Product Advertising API.
   * Add Brazil locale and fix Japan endpoint.
   * Make author and publisher fields optional.
-
 
 -------------------------
 (2014-08-06) version 1.0:
