@@ -6,6 +6,7 @@
 *)
 (********************************************************************************)
 
+open Lwt
 open Bookaml_amazon
 
 module List = BatList
@@ -52,15 +53,15 @@ struct
     end
 
     let perform_request ~host request =
-        lwt frame = Ocsigen_http_client.get ~host ~uri:request () in
+        Ocsigen_http_client.get ~host ~uri:request () >>= fun frame ->
         match frame.Ocsigen_http_frame.frame_content with
             | Some stream ->
                 let buf = Buffer.create 4096 in
-                let rec string_of_stream stream = match_lwt Ocsigen_stream.next stream with
+                let rec string_of_stream stream = match%lwt Ocsigen_stream.next stream with
                     | Ocsigen_stream.Cont (str, stream)     -> Buffer.add_string buf str; string_of_stream stream
                     | Ocsigen_stream.Finished (Some stream) -> string_of_stream stream
                     | Ocsigen_stream.Finished None          -> Lwt.return (Buffer.contents buf) in
-                lwt result = string_of_stream (Ocsigen_stream.get stream) in
+                string_of_stream (Ocsigen_stream.get stream) >>= fun result ->
                 Ocsigen_stream.finalize stream `Success >>
                 Lwt.return result
             | None ->

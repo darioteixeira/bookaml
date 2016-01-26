@@ -27,7 +27,7 @@ exception No_match of Bookaml_isbn.t
 
 module Locale =
 struct
-    type t = [ `BR | `CA | `CN | `DE | `ES | `FR | `IN | `IT | `JP | `UK | `US ] with sexp
+    type t = [ `BR | `CA | `CN | `DE | `ES | `FR | `IN | `IT | `JP | `UK | `US ] [@@deriving sexp]
 
     let of_string = function
         | "BR" | "br" -> `BR
@@ -68,10 +68,10 @@ type credential_t =
     associate_tag: string;
     access_key: string;
     secret_key: string;
-    } with sexp
+    } [@@deriving sexp]
 
 
-type criteria_t = (string * string) list with sexp
+type criteria_t = (string * string) list [@@deriving sexp]
 
 
 (********************************************************************************)

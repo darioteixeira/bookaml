@@ -33,6 +33,6 @@ true: annot, bin_annot
 <src/*.ml{,i,y}>: pkg_tyxml.parser
 <src/*.ml{,i,y}>: use_bookaml
 # OASIS_STOP
-<src/bookaml_isbn.ml*>: pkg_sexplib.syntax, syntax_camlp4o
-<src/bookaml_amazon.ml*>: pkg_sexplib.syntax, syntax_camlp4o
-<src/bookaml_amazon_ocsigen.ml>: pkg_lwt.syntax, syntax_camlp4o
+<src/bookaml_isbn.ml*>: pkg_ppx_sexp_conv
+<src/bookaml_amazon.ml*>: pkg_ppx_sexp_conv
+<src/bookaml_amazon_ocsigen.ml>: pkg_lwt.ppx
