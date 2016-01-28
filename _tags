@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 477560396b60aabe7acf335fccd7390c)
+# DO NOT EDIT (digest: 4525b74c028c726c2ac814937bfa3afc)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -21,7 +21,6 @@ true: annot, bin_annot
 <src/*.ml{,i,y}>: pkg_lwt
 <src/*.ml{,i,y}>: pkg_ocsigenserver
 <src/*.ml{,i,y}>: pkg_threads
-<src/*.ml{,i,y}>: pkg_tyxml
 # Library bookaml_ocamlnet
 "src/bookaml_ocamlnet.cmxs": use_bookaml_ocamlnet
 <src/*.ml{,i,y}>: pkg_batteries
@@ -30,7 +29,6 @@ true: annot, bin_annot
 <src/*.ml{,i,y}>: pkg_netclient
 <src/*.ml{,i,y}>: pkg_netstring
 <src/*.ml{,i,y}>: pkg_sexplib
-<src/*.ml{,i,y}>: pkg_tyxml.parser
 <src/*.ml{,i,y}>: use_bookaml
 # OASIS_STOP
 <src/bookaml_isbn.ml*>: pkg_ppx_sexp_conv
