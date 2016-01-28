@@ -53,7 +53,7 @@ end
 
 (** Credential for Amazon Web Services.
 *)
-type credential_t =
+type credential =
     {
     locale: Locale.t;
     associate_tag: string;
@@ -65,7 +65,7 @@ type credential_t =
 (** Search criteria expected by some {!ENGINE} functions.  The search criteria
     must be created beforehand by function {!make_criteria}.
 *)
-type criteria_t [@@deriving sexp]
+type criteria [@@deriving sexp]
 
 
 (********************************************************************************)
@@ -79,7 +79,7 @@ val make_credential:
     associate_tag: string ->
     access_key: string ->
     secret_key: string ->
-    credential_t
+    credential
 
 
 (** Constructs the search criteria that may be given to {!ENGINE} functions.
@@ -93,7 +93,7 @@ val make_criteria:
     ?publisher:string ->
     ?keywords:string ->
     unit ->
-    criteria_t
+    criteria
 
 
 (********************************************************************************)
@@ -132,13 +132,13 @@ sig
     (** It makes sense to wrap in a monadic system such as [Lwt] those functions
         that may take some time to complete.  If that is the case, then any module
         that implements this signature should be declared as having module type
-        [Bookaml_amazon.ENGINE with type 'a monad_t = 'a Lwt.t].  Nevertheless,
+        [Bookaml_amazon.ENGINE with type 'a monad = 'a Lwt.t].  Nevertheless,
         for the sake of flexibility we do not actually mandate that [Lwt] be used,
-        and hence why this abstract type ['a monad_t] exists.  It is in fact possible
+        and hence why this abstract type ['a monad] exists.  It is in fact possible
         for the implementation to use no monad-based system at all, in which case the
-        identity monad may be declared: [Bookaml_amazon.ENGINE with type 'a monad_t = 'a].
+        identity monad may be declared: [Bookaml_amazon.ENGINE with type 'a monad = 'a].
     *)
-    type 'a monad_t
+    type 'a monad
 
 
     (** Finds some of the books that match the given search criteria.  The result
@@ -153,9 +153,9 @@ sig
     *)
     val find_some_books:
         ?page:int ->
-        credential:credential_t ->
-        criteria_t ->
-        (int * int * Bookaml_book.t list) monad_t
+        credential:credential ->
+        criteria ->
+        (int * int * Bookaml_book.t list) monad
 
 
     (** Finds all the books that match the given search criteria.  Note that if
@@ -165,27 +165,27 @@ sig
         relevant results, then function {!find_some_books} is more appropriate.
     *)
     val find_all_books:
-        credential:credential_t ->
-        criteria_t ->
-        Bookaml_book.t list monad_t
+        credential:credential ->
+        criteria ->
+        Bookaml_book.t list monad
 
 
     (** Returns the book that matches the given ISBN.  Note that it actually
         returns [Some book] if the book was retrievable and [None] otherwise.
     *)
     val book_from_isbn:
-        credential:credential_t ->
+        credential:credential ->
         Bookaml_isbn.t ->
-        Bookaml_book.t option monad_t
+        Bookaml_book.t option monad
 
 
     (** Similar to {!book_from_isbn}, but raises an exception if the book
         was not found or if an error occurred during the operation.
     *)
     val book_from_isbn_exn:
-        credential:credential_t ->
+        credential:credential ->
         Bookaml_isbn.t ->
-        Bookaml_book.t monad_t
+        Bookaml_book.t monad
 end
 
 
@@ -196,5 +196,5 @@ end
 module Make:
     functor (Xmlhandler: XMLHANDLER) ->
     functor (Httpgetter: HTTPGETTER) ->
-    ENGINE with type 'a monad_t = 'a Httpgetter.Monad.t
+    ENGINE with type 'a monad = 'a Httpgetter.Monad.t
 

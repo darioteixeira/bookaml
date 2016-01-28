@@ -13,7 +13,7 @@
 (** {1 Type definitions}                                                        *)
 (********************************************************************************)
 
-type price_t =
+type price =
     {
     amount: int;
     currency: string;
@@ -21,7 +21,7 @@ type price_t =
     }
 
 
-type image_t =
+type image =
     {
     url: string;
     width: int;
@@ -37,13 +37,13 @@ type t =
     publisher: string option;
     pubdate: string option;
     page: string option;
-    list_price: price_t option;
-    price_new: price_t option;
-    price_used: price_t option;
-    price_collectible: price_t option;
-    price_refurbished: price_t option;
-    image_small: image_t option;
-    image_medium: image_t option;
-    image_large: image_t option;
+    list_price: price option;
+    price_new: price option;
+    price_used: price option;
+    price_collectible: price option;
+    price_refurbished: price option;
+    image_small: image option;
+    image_medium: image option;
+    image_large: image option;
     }
 

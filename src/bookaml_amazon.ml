@@ -62,7 +62,7 @@ end
 (** {1 Type definitions}                                                        *)
 (********************************************************************************)
 
-type credential_t =
+type credential =
     {
     locale: Locale.t;
     associate_tag: string;
@@ -71,7 +71,7 @@ type credential_t =
     } [@@deriving sexp]
 
 
-type criteria_t = (string * string) list [@@deriving sexp]
+type criteria = (string * string) list [@@deriving sexp]
 
 
 (********************************************************************************)
@@ -189,28 +189,28 @@ end
 
 module type ENGINE =
 sig
-    type 'a monad_t
+    type 'a monad
 
     val find_some_books:
         ?page:int ->
-        credential:credential_t ->
-        criteria_t ->
-        (int * int * Bookaml_book.t list) monad_t
+        credential:credential ->
+        criteria ->
+        (int * int * Bookaml_book.t list) monad
 
     val find_all_books:
-        credential:credential_t ->
-        criteria_t ->
-        Bookaml_book.t list monad_t
+        credential:credential ->
+        criteria ->
+        Bookaml_book.t list monad
 
     val book_from_isbn:
-        credential:credential_t ->
+        credential:credential ->
         Bookaml_isbn.t ->
-        Bookaml_book.t option monad_t
+        Bookaml_book.t option monad
 
     val book_from_isbn_exn:
-        credential:credential_t ->
+        credential:credential ->
         Bookaml_isbn.t ->
-        Bookaml_book.t monad_t
+        Bookaml_book.t monad
 end
 
 
@@ -229,7 +229,7 @@ struct
     (** {1 Type definitions}                                                    *)
     (****************************************************************************)
 
-    type 'a monad_t = 'a Monad.t
+    type 'a monad = 'a Monad.t
 
 
     (****************************************************************************)

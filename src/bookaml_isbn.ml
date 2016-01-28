@@ -22,12 +22,12 @@ exception Bad_isbn_character of char
 (** {1 Type definitions}                                                        *)
 (********************************************************************************)
 
-type from10_t = {isbn10: string; isbn13: string} [@@deriving sexp]
-type from13_t = {isbn10: string option; isbn13: string} [@@deriving sexp]
+type from10 = {isbn10: string; isbn13: string} [@@deriving sexp]
+type from13 = {isbn10: string option; isbn13: string} [@@deriving sexp]
 
 type t =
-    | From10 of from10_t
-    | From13 of from13_t
+    | From10 of from10
+    | From13 of from13
     [@@deriving sexp]
 
 
