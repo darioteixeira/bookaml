@@ -24,10 +24,10 @@ depends: [
   "ocamlnet" {>= "4"}
   "ppx_sexp_conv"
   "sexplib"
+  "tyxml"
 ]
 depopts: [
   "lwt"
   "ocsigenserver"
-  "tyxml"
 ]
 
