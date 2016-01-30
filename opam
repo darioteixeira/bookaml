@@ -28,5 +28,6 @@ depends: [
 depopts: [
   "lwt"
   "ocsigenserver"
+  "tyxml"
 ]
 
