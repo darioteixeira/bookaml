@@ -34,7 +34,7 @@ Library "bookaml_ocsigen"
   FindlibName:          ocsigen
   Path:                 src
   Modules:              Bookaml_amazon_ocsigen
-  BuildDepends:         batteries, bookaml, lwt, ocsigenserver, threads
+  BuildDepends:         batteries, bookaml, lwt, ocsigenserver, threads, tyxml
 
 Library "bookaml_ocamlnet"
   Build$:               flag(ocamlnet)
@@ -43,7 +43,7 @@ Library "bookaml_ocamlnet"
   FindlibName:          ocamlnet
   Path:                 src
   Modules:              Bookaml_amazon_ocamlnet
-  BuildDepends:         batteries, bookaml, netclient
+  BuildDepends:         batteries, bookaml, netclient, tyxml
 
 Document "bookaml"
   Install:              true
