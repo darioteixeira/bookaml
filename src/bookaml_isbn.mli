@@ -1,11 +1,3 @@
-(********************************************************************************)
-(*  Bookaml_isbn.mli
-    Copyright (c) 2010-2015 Dario Teixeira <dario.teixeira@nleyten.com>
-    This software is distributed under the terms of the GNU GNU LGPL 2.1
-    with OCaml linking exception.  See LICENSE file for full license text.
-*)
-(********************************************************************************)
-
 (** Module encapsulating ISBNs.  It takes advantage of the check digit to make
     sure that any given ISBN is correct.  It supports both 10 and 13-digit ISBNs.
 *)

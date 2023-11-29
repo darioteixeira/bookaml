@@ -1,11 +1,3 @@
-(********************************************************************************)
-(*  Bookaml_amazon.mli
-    Copyright (c) 2010-2015 Dario Teixeira <dario.teixeira@nleyten.com>
-    This software is distributed under the terms of the GNU LGPL 2.1
-    with OCaml linking exception.  See LICENSE file for full license text.
-*)
-(********************************************************************************)
-
 (** Module providing facilities for finding information about books.
     It works by invoking the Amazon Product Advertising API, and therefore
     most of its functions require the associate tag, access key, and secret
